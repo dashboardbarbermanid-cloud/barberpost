@@ -1,0 +1,1394 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Barberman.Id - Kasir Pintar</title>
+    
+    <!-- Favicon PNG -->
+    <link rel="icon" type="image/png" href="https://i.ibb.co.com/LhHx9d4h/images-Nero-AI-Image-Upscaler-Photo-Face.png">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts (Inter) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#000000">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Barberman.Id">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F2F2F7;
+            -webkit-tap-highlight-color: transparent;
+            overscroll-behavior-y: none;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 10px; }
+
+        /* Animations */
+        .sheet-enter { transform: translateY(100%); }
+        .sheet-enter-active { transform: translateY(0); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+        .sheet-exit { transform: translateY(0); }
+        .sheet-exit-active { transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+
+        .fade-in { animation: fadeIn 0.3s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Print Styles */
+        @media print {
+            body * { visibility: hidden; }
+            #print-area, #print-area * { visibility: visible; }
+            #print-area { position: absolute; left: 0; top: 0; width: 100%; padding: 20px; font-family: monospace; background: white;}
+            .no-print { display: none !important; }
+        }
+        
+        /* Toast Notification */
+        #toast {
+            visibility: hidden;
+            min-width: 250px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 50px;
+            padding: 16px;
+            position: fixed;
+            z-index: 9999;
+            left: 50%;
+            bottom: 30px;
+            transform: translateX(-50%);
+            font-size: 14px;
+            opacity: 0;
+            transition: opacity 0.3s, bottom 0.3s;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+        }
+        #toast.show {
+            visibility: visible;
+            opacity: 1;
+            bottom: 50px;
+        }
+
+        /* Helper for text truncation */
+        .text-overflow-wrap {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body class="text-black antialiased selection:bg-red-200">
+
+    <!-- TOAST NOTIFICATION -->
+    <div id="toast">Notifikasi</div>
+
+    <!-- LOGIN SCREEN -->
+    <div id="login-screen" class="fixed inset-0 bg-white z-[100] flex flex-col items-center justify-center px-6 hidden fade-in">
+        <div class="w-full max-w-sm space-y-8">
+            <div class="text-center">
+                <div class="mx-auto bg-black text-white w-24 h-24 flex items-center justify-center rounded-3xl mb-6 shadow-xl overflow-hidden p-2">
+                    <img src="https://i.ibb.co.com/001yB4w/BARBER-20260604-120614-0000.png" alt="Logo" class="w-full h-full object-contain" alt="Logo" class="w-full h-full object-contain">
+                </div>
+                <h2 class="text-3xl font-extrabold tracking-tight">Barberman.Id</h2>
+                <p class="text-gray-500 mt-2">Masuk ke akun Anda</p>
+            </div>
+            
+            <div class="space-y-4">
+                <div>
+                    <input type="email" id="login-email" class="w-full bg-gray-50 border-2 border-gray-200 text-black rounded-2xl px-5 py-4 font-bold text-lg focus:bg-white focus:ring-2 focus:ring-black focus:border-black transition-colors" placeholder="Email">
+                </div>
+                <div>
+                    <input type="password" id="login-password" class="w-full bg-gray-50 border-2 border-gray-200 text-black rounded-2xl px-5 py-4 font-bold text-lg focus:bg-white focus:ring-2 focus:ring-black focus:border-black transition-colors" placeholder="Password">
+                </div>
+                <button id="btn-email-login" class="w-full bg-black text-white border-2 border-black rounded-2xl px-5 py-4 font-extrabold text-lg hover:bg-gray-800 transition-colors shadow-lg flex items-center justify-center gap-3">
+                    <i class="fa-solid fa-right-to-bracket"></i> Masuk
+                </button>
+                <p class="text-center text-xs text-gray-400">Hubungi admin jika belum memiliki akun</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN APP WRAPPER -->
+    <div id="app-wrapper" class="flex min-h-screen hidden">
+        
+        <!-- DESKTOP SIDEBAR -->
+        <aside class="hidden md:flex fixed top-4 bottom-4 left-4 w-72 bg-black text-white rounded-3xl p-6 flex-col shadow-2xl z-40">
+            <div class="flex items-center gap-3 mb-10 px-2">
+                <div class="bg-white p-2.5 rounded-xl shadow-inner w-12 h-12 flex items-center justify-center overflow-hidden">
+                    <img src="https://i.ibb.co/rRPgHFzP/images-Nero-AI-Image-Upscaler-Photo-Face-removebg-preview.png" alt="Logo" class="w-full h-full object-contain">
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg tracking-wide">Barberman.Id</h1>
+                    <p class="text-xs text-gray-500">POS System v2</p>
+                </div>
+            </div>
+
+            <nav class="flex-1 space-y-1" id="desktop-nav">
+                <!-- Nav items generated by JS -->
+            </nav>
+
+            <div class="mt-auto pt-6 border-t border-gray-800">
+                <div class="flex items-center gap-3 px-2 mb-4">
+                    <div class="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center text-xs" id="user-avatar-initial">U</div>
+                    <span class="text-sm text-gray-400 truncate" id="user-email-display">user@mail.com</span>
+                </div>
+                <button id="btn-logout-desktop" class="w-full flex items-center gap-4 px-4 py-3 rounded-2xl text-red-500 hover:bg-red-500/10 transition-colors text-sm font-semibold">
+                    <i class="fa-solid fa-arrow-right-from-bracket w-5"></i> Keluar
+                </button>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="flex-1 md:ml-[304px] p-4 md:p-6 pb-28 md:pb-6 relative w-full overflow-x-hidden">
+            
+            <!-- VIEW: KASIR -->
+            <section id="view-kasir" class="view-section hidden">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-3xl font-extrabold tracking-tight">Kasir</h2>
+                    <span id="data-status-badge" class="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-bold hidden">Data Kosong!</span>
+                </div>
+
+                <div class="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-gray-100 fade-in">
+                    <form id="form-kasir" class="space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Kiri -->
+                            <div class="space-y-5">
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Nomor Antrian (Otomatis)</label>
+                                    <input type="text" id="kasir-antrian" readonly class="w-full bg-gray-100 border border-gray-200 text-gray-500 rounded-2xl px-5 py-4 font-extrabold focus:ring-2 focus:ring-black cursor-not-allowed" placeholder="A00" required>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Nama Customer</label>
+                                    <input type="text" id="kasir-nama" class="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-4 font-bold focus:bg-white focus:ring-2 focus:ring-black transition-all" placeholder="Nama Pelanggan" required>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Nomor Telepon</label>
+                                    <input type="tel" id="kasir-telepon" class="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-4 font-bold focus:bg-white focus:ring-2 focus:ring-black transition-all" placeholder="08xxxxxxxxxx">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Pilih Capster</label>
+                                    <div class="relative">
+                                        <select id="kasir-capster" class="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-4 font-bold appearance-none focus:bg-white focus:ring-2 focus:ring-black transition-all" required>
+                                            <option value="" disabled selected>-- Pilih Capster --</option>
+                                        </select>
+                                        <div class="absolute right-5 top-1/2 transform -translate-y-1/2 pointer-events-none text-gray-400">
+                                            <i class="fa-solid fa-chevron-down"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Kanan -->
+                            <div class="space-y-5">
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Layanan / Jasa</label>
+                                    <div class="relative">
+                                        <select id="kasir-layanan" class="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-4 font-bold appearance-none focus:bg-white focus:ring-2 focus:ring-black transition-all" required>
+                                            <option value="" disabled selected>-- Pilih Layanan --</option>
+                                        </select>
+                                        <div class="absolute right-5 top-1/2 transform -translate-y-1/2 pointer-events-none text-gray-400">
+                                            <i class="fa-solid fa-chevron-down"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Produk Tambahan</label>
+                                    <div class="relative">
+                                        <select id="kasir-produk" class="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-4 font-bold appearance-none focus:bg-white focus:ring-2 focus:ring-black transition-all">
+                                            <option value="">Tidak ada</option>
+                                        </select>
+                                        <div class="absolute right-5 top-1/2 transform -translate-y-1/2 pointer-events-none text-gray-400">
+                                            <i class="fa-solid fa-chevron-down"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Metode Pembayaran (Awal)</label>
+                                    <div class="grid grid-cols-2 gap-3">
+                                        <button type="button" class="pay-method-btn active bg-black text-white py-3 rounded-xl font-bold text-sm border-2 border-black transition-colors" data-val="Cash">Cash</button>
+                                        <button type="button" class="pay-method-btn bg-white text-gray-500 py-3 rounded-xl font-bold text-sm border-2 border-gray-200 hover:bg-gray-50 transition-colors" data-val="QRIS">QRIS</button>
+                                        <button type="button" class="pay-method-btn bg-white text-gray-500 py-3 rounded-xl font-bold text-sm border-2 border-gray-200 hover:bg-gray-50 transition-colors" data-val="E-Wallet">E-Wallet</button>
+                                        <button type="button" class="pay-method-btn bg-white text-gray-500 py-3 rounded-xl font-bold text-sm border-2 border-gray-200 hover:bg-gray-50 transition-colors" data-val="Transfer">Transfer</button>
+                                    </div>
+                                    <input type="hidden" id="kasir-metode" value="Cash">
+                                    <p class="text-[10px] text-gray-400 mt-2">*Bisa diubah nanti saat pembayaran</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Catatan</label>
+                            <textarea id="kasir-catatan" rows="2" class="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-3 focus:bg-white focus:ring-2 focus:ring-black transition-all" placeholder="Request pelanggan..."></textarea>
+                        </div>
+                        
+                        <div class="pt-6 flex items-center justify-between border-t border-gray-100">
+                            <div class="min-w-0 mr-4">
+                                <p class="text-gray-400 text-xs font-bold uppercase mb-1">Total Tagihan</p>
+                                <h3 id="kasir-total-display" class="text-4xl font-extrabold tracking-tight truncate">Rp 0</h3>
+                            </div>
+                            <button type="submit" id="btn-submit-kasir" class="flex-shrink-0 bg-black text-white px-10 py-4 rounded-2xl font-extrabold text-lg hover:bg-gray-800 transition-all shadow-lg active:scale-95 flex items-center gap-2">
+                                <i class="fa-solid fa-check"></i> Proses
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+            <!-- VIEW: PEMBAYARAN -->
+            <section id="view-pembayaran" class="view-section hidden">
+                <h2 class="text-3xl font-extrabold mb-6 tracking-tight">Pembayaran</h2>
+                
+                <!-- Search Bar -->
+                <div class="relative mb-6">
+                    <i class="fa-solid fa-search absolute left-4 top-3.5 text-gray-400"></i>
+                    <input type="text" id="search-payment" class="w-full bg-white border border-gray-200 rounded-xl pl-12 pr-4 py-3 focus:ring-2 focus:ring-black transition-all font-medium" placeholder="Cari Nama / No. Antrian...">
+                </div>
+
+                <div class="flex gap-2 mb-6 overflow-x-auto pb-2 no-scrollbar">
+                    <button class="filter-btn px-6 py-2.5 rounded-full bg-black text-white font-bold text-sm whitespace-nowrap shadow-lg" data-filter="all">Semua Aktif</button>
+                    <button class="filter-btn px-6 py-2.5 rounded-full bg-white text-gray-500 font-bold text-sm whitespace-nowrap shadow-sm border border-gray-200" data-filter="belum">Belum Lunas</button>
+                    <button class="filter-btn px-6 py-2.5 rounded-full bg-white text-gray-500 font-bold text-sm whitespace-nowrap shadow-sm border border-gray-200" data-filter="lunas">Lunas</button>
+                    <button class="filter-btn px-6 py-2.5 rounded-full bg-white text-gray-500 font-bold text-sm whitespace-nowrap shadow-sm border border-gray-200" data-filter="batal">Dibatalkan</button>
+                </div>
+
+                <div id="payment-list" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                    <!-- Dynamic Content -->
+                </div>
+            </section>
+
+            <!-- VIEW: LAPORAN -->
+            <section id="view-laporan" class="view-section hidden">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+                    <div>
+                        <h2 class="text-3xl font-extrabold tracking-tight">Laporan</h2>
+                        <p class="text-gray-500 text-sm mt-1">Ringkasan performa toko</p>
+                    </div>
+                    <div class="flex gap-2 w-full md:w-auto">
+                        <select id="report-period-select" class="bg-white border border-gray-200 text-black rounded-xl px-4 py-2.5 font-bold shadow-sm focus:ring-2 focus:ring-black text-sm flex-1 md:flex-none">
+                            <option value="month">Bulan Ini</option>
+                            <option value="last_month">Bulan Lalu</option>
+                            <option value="3_month">3 Bulan Terakhir</option>
+                            <option value="year">Tahun Ini</option>
+                            <option value="all_time">Semua Waktu</option>
+                        </select>
+                        <button id="btn-download-laporan" class="bg-white border border-gray-200 text-black px-4 py-2.5 rounded-xl font-bold shadow-sm hover:bg-gray-50 transition flex items-center gap-2 text-sm whitespace-nowrap">
+                            <i class="fa-solid fa-file-csv text-green-600"></i> Download
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Stats Grid -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                    <div class="bg-white p-5 rounded-3xl shadow-sm border border-gray-100">
+                        <div class="flex items-center gap-2 mb-2">
+                            <div class="w-2 h-2 rounded-full bg-green-500"></div>
+                            <p class="text-gray-400 text-xs font-bold uppercase">Total Revenue</p>
+                        </div>
+                        <h4 class="text-lg md:text-xl font-extrabold truncate text-overflow-wrap" id="lap-total-revenue">Rp 0</h4>
+                    </div>
+                    <div class="bg-white p-5 rounded-3xl shadow-sm border border-gray-100">
+                        <div class="flex items-center gap-2 mb-2">
+                            <div class="w-2 h-2 rounded-full bg-blue-500"></div>
+                            <p class="text-gray-400 text-xs font-bold uppercase">Transaksi</p>
+                        </div>
+                        <h4 class="text-lg md:text-xl font-extrabold" id="lap-count-tx">0</h4>
+                    </div>
+                    <div class="bg-white p-5 rounded-3xl shadow-sm border border-gray-100">
+                        <div class="flex items-center gap-2 mb-2">
+                            <div class="w-2 h-2 rounded-full bg-purple-500"></div>
+                            <p class="text-gray-400 text-xs font-bold uppercase">Rata-rata</p>
+                        </div>
+                        <h4 class="text-lg md:text-xl font-extrabold truncate text-overflow-wrap" id="lap-average">Rp 0</h4>
+                    </div>
+                    <div id="card-top-capster" class="bg-black text-white p-5 rounded-3xl shadow-sm cursor-pointer hover:bg-gray-800 transition-colors relative group">
+                        <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </div>
+                        <div class="flex items-center gap-2 mb-2">
+                            <div class="w-2 h-2 rounded-full bg-red-500"></div>
+                            <p class="text-gray-400 text-xs font-bold uppercase">Top Capster</p>
+                        </div>
+                        <h4 class="text-lg md:text-xl font-extrabold text-red-500 truncate" id="lap-top-capster">-</h4>
+                    </div>
+                </div>
+
+                <!-- PERFORMA CAPSTER -->
+                <h3 class="font-bold text-lg mb-4">Performa Capster</h3>
+                <div id="capster-performance-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                    <div class="col-span-full text-center text-sm text-gray-400 py-4 bg-white rounded-3xl shadow-sm border border-gray-100">Memuat data...</div>
+                </div>
+
+                <!-- GRAFIK PENDAPATAN HARIAN -->
+                <div id="daily-chart-section" class="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 mb-8 hidden">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-bold text-lg">Grafik Pendapatan Harian</h3>
+                        <span class="text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded">Bulan Ini / Bulan Lalu</span>
+                    </div>
+                    <div class="relative w-full h-48 flex items-end justify-between gap-1 md:gap-2 pb-2 border-b border-gray-200">
+                        <div id="chart-bars" class="contents"></div>
+                    </div>
+                </div>
+
+                <!-- Financial Breakdown Grid -->
+                <h3 class="font-bold text-lg mb-4">Rincian Pembayaran</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                    <div class="bg-white p-5 rounded-3xl shadow-sm border border-gray-100 border-l-4 border-l-green-500">
+                        <div class="flex items-center justify-between mb-2">
+                            <p class="text-gray-400 text-xs font-bold uppercase">Total Cash</p>
+                            <i class="fa-solid fa-money-bill-wave text-green-500"></i>
+                        </div>
+                        <h4 class="text-2xl font-extrabold truncate text-overflow-wrap" id="lap-total-cash">Rp 0</h4>
+                    </div>
+                    <div class="bg-white p-5 rounded-3xl shadow-sm border border-gray-100 border-l-4 border-l-blue-500">
+                        <div class="flex items-center justify-between mb-2">
+                            <p class="text-gray-400 text-xs font-bold uppercase">Total QRIS</p>
+                            <i class="fa-solid fa-qrcode text-blue-500"></i>
+                        </div>
+                        <h4 class="text-2xl font-extrabold truncate text-overflow-wrap" id="lap-total-qris">Rp 0</h4>
+                    </div>
+                    <div class="bg-white p-5 rounded-3xl shadow-sm border border-gray-100 border-l-4 border-l-purple-500">
+                        <div class="flex items-center justify-between mb-2">
+                            <p class="text-gray-400 text-xs font-bold uppercase">Rekening / E-Wallet</p>
+                            <i class="fa-solid fa-building-columns text-purple-500"></i>
+                        </div>
+                        <h4 class="text-2xl font-extrabold truncate text-overflow-wrap" id="lap-total-bank">Rp 0</h4>
+                    </div>
+                </div>
+
+                <!-- Table -->
+                <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm whitespace-nowrap">
+                            <thead class="bg-gray-50 text-gray-500 border-b border-gray-100">
+                                <tr>
+                                    <th class="px-6 py-4 font-bold text-xs uppercase w-24">Waktu</th>
+                                    <th class="px-6 py-4 font-bold text-xs uppercase">Antrian</th>
+                                    <th class="px-6 py-4 font-bold text-xs uppercase">Capster</th>
+                                    <th class="px-6 py-4 font-bold text-xs uppercase">Pelanggan</th>
+                                    <th class="px-6 py-4 font-bold text-xs uppercase">Layanan</th>
+                                    <th class="px-6 py-4 font-bold text-xs uppercase w-32">Total</th>
+                                    <th class="px-6 py-4 font-bold text-xs uppercase">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="laporan-table-body" class="divide-y divide-gray-50">
+                                <!-- Dynamic -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW: TOP CAPSTER DETAIL -->
+            <section id="view-topcapster" class="view-section hidden">
+                <div class="flex items-center gap-4 mb-6">
+                    <button onclick="switchTab('laporan')" class="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center hover:bg-gray-50 shadow-sm">
+                        <i class="fa-solid fa-arrow-left"></i>
+                    </button>
+                    <h2 class="text-3xl font-extrabold tracking-tight">Detail Capster</h2>
+                </div>
+
+                <div class="bg-black text-white rounded-3xl p-6 md:p-8 mb-8 shadow-xl relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full -mr-16 -mt-16"></div>
+                    <div class="relative flex flex-col md:flex-row items-center md:items-start gap-6">
+                        <div class="w-24 h-24 bg-red-500 rounded-full flex items-center justify-center text-4xl font-bold shadow-lg" id="detail-capster-avatar">A</div>
+                        <div class="text-center md:text-left">
+                            <h3 class="text-3xl font-bold mb-1" id="detail-capster-name">Nama Capster</h3>
+                            <p class="text-gray-400 text-sm">Capster Senior</p>
+                        </div>
+                        <div class="mt-4 md:mt-0 md:ml-auto flex gap-4">
+                            <div class="text-center">
+                                <p class="text-xs text-gray-400 uppercase">Pelanggan</p>
+                                <h4 class="text-2xl font-bold" id="detail-count">0</h4>
+                            </div>
+                            <div class="w-px bg-gray-700"></div>
+                            <div class="text-center">
+                                <p class="text-xs text-gray-400 uppercase">Revenue</p>
+                                <h4 class="text-2xl font-bold text-red-500" id="detail-revenue">Rp 0</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <h3 class="font-bold text-xl mb-4">Riwayat Transaksi (Periode Terpilih)</h3>
+                <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm">
+                            <thead class="bg-gray-50 text-gray-500 border-b border-gray-100">
+                                <tr>
+                                    <th class="px-6 py-4 font-bold text-xs uppercase">Tanggal</th>
+                                    <th class="px-6 py-4 font-bold text-xs uppercase">Pelanggan</th>
+                                    <th class="px-6 py-4 font-bold text-xs uppercase">Layanan</th>
+                                    <th class="px-6 py-4 font-bold text-xs uppercase">Total</th>
+                                    <th class="px-6 py-4 font-bold text-xs uppercase">Metode</th>
+                                </tr>
+                            </thead>
+                            <tbody id="detail-table-body" class="divide-y divide-gray-50">
+                                <!-- Dynamic -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW: ABSENSI -->
+            <section id="view-absensi" class="view-section hidden">
+                <h2 class="text-3xl font-extrabold mb-6 tracking-tight">Absensi & Toko</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <div class="bg-white p-6 md:p-8 rounded-3xl shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center">
+                        <div id="store-status-icon" class="w-24 h-24 rounded-full bg-red-100 text-red-600 flex items-center justify-center mb-6 transition-all duration-300 shadow-inner">
+                            <i class="fa-solid fa-store-slash text-4xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-1" id="store-status-text">TOKO TUTUP</h3>
+                        <p class="text-gray-500 text-sm mb-8">Ubah status operasional toko</p>
+                        
+                        <div class="flex gap-3 w-full">
+                            <button id="btn-toko-buka" class="flex-1 py-3 bg-black text-white rounded-xl font-bold hover:bg-gray-800 transition shadow-lg active:scale-95">Buka</button>
+                            <button id="btn-toko-tutup" class="flex-1 py-3 bg-red-600 text-white rounded-xl font-bold hover:bg-red-700 transition shadow-lg active:scale-95 opacity-50 cursor-not-allowed" disabled>Tutup</button>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 md:p-8 rounded-3xl shadow-sm border border-gray-100">
+                        <h3 class="text-xl font-bold mb-6 flex items-center gap-2"><i class="fa-solid fa-user-clock text-gray-400"></i> Absen Crew</h3>
+                        <form id="form-absensi" class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Nama Crew</label>
+                                <select id="absen-nama" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 font-bold focus:bg-white focus:ring-2 focus:ring-black" required>
+                                    <option value="" disabled selected>-- Pilih --</option>
+                                </select>
+                            </div>
+                            <div class="flex gap-3 pt-2">
+                                <button type="button" id="btn-absen-masuk" class="flex-1 py-3 bg-green-500 text-white rounded-xl font-bold hover:bg-green-600 transition shadow-sm active:scale-95">Masuk</button>
+                                <button type="button" id="btn-absen-keluar" class="flex-1 py-3 bg-orange-500 text-white rounded-xl font-bold hover:bg-orange-600 transition shadow-sm active:scale-95">Keluar</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-6">
+                    <h3 class="font-bold text-lg mb-4">Log Hari Ini</h3>
+                    <div class="space-y-3" id="log-absensi">
+                        <p class="text-gray-400 text-center py-4 text-sm">Belum ada aktivitas hari ini.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW: PENGATURAN -->
+            <section id="view-settings" class="view-section hidden">
+                <h2 class="text-3xl font-extrabold mb-6 tracking-tight">Pengaturan Data</h2>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
+                        <h3 class="font-bold text-lg mb-4 border-b border-gray-100 pb-2">Daftar Capster</h3>
+                        <form id="form-add-capster" class="flex gap-2 mb-4">
+                            <input type="text" id="input-capster" placeholder="Nama Capster (cth: Bima)" class="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-2 focus:ring-2 focus:ring-black focus:bg-white text-sm font-semibold" required>
+                            <button type="submit" class="bg-black text-white px-4 py-2 rounded-xl font-bold hover:bg-gray-800"><i class="fa-solid fa-plus"></i></button>
+                        </form>
+                        <ul id="list-capsters" class="space-y-2 max-h-60 overflow-y-auto"></ul>
+                    </div>
+
+                    <div class="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
+                        <h3 class="font-bold text-lg mb-4 border-b border-gray-100 pb-2">Daftar Layanan & Harga</h3>
+                        <form id="form-add-service" class="space-y-2 mb-4">
+                            <input type="text" id="input-service-name" placeholder="Nama Layanan (cth: Haircut Premium)" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2 focus:ring-2 focus:ring-black focus:bg-white text-sm font-semibold" required>
+                            <div class="flex gap-2">
+                                <input type="number" id="input-service-price" placeholder="Harga (Rp)" class="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-2 focus:ring-2 focus:ring-black focus:bg-white text-sm font-semibold" required>
+                                <button type="submit" class="bg-black text-white px-4 py-2 rounded-xl font-bold hover:bg-gray-800 whitespace-nowrap">Tambah</button>
+                            </div>
+                        </form>
+                        <ul id="list-services" class="space-y-2 max-h-60 overflow-y-auto"></ul>
+                    </div>
+
+                    <div class="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 lg:col-span-2">
+                        <h3 class="font-bold text-lg mb-4 border-b border-gray-100 pb-2">Produk Jualan (Pomade, Vitamin, dll)</h3>
+                        <form id="form-add-product" class="flex flex-col md:flex-row gap-2 mb-4">
+                            <input type="text" id="input-product-name" placeholder="Nama Produk" class="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-2 focus:ring-2 focus:ring-black focus:bg-white text-sm font-semibold" required>
+                            <input type="number" id="input-product-price" placeholder="Harga Produk" class="md:w-40 bg-gray-50 border border-gray-200 rounded-xl px-4 py-2 focus:ring-2 focus:ring-black focus:bg-white text-sm font-semibold" required>
+                            <button type="submit" class="bg-black text-white px-6 py-2 rounded-xl font-bold hover:bg-gray-800 whitespace-nowrap">Tambah Produk</button>
+                        </form>
+                        <ul id="list-products" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2"></ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW: PROFIL (NEW) -->
+            <section id="view-profile" class="view-section hidden">
+                <h2 class="text-3xl font-extrabold mb-6 tracking-tight">Profil</h2>
+                
+                <div class="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-gray-100 flex flex-col items-center text-center mb-6 fade-in">
+                    <div class="w-24 h-24 bg-black text-white rounded-full flex items-center justify-center text-4xl font-bold mb-4 shadow-lg" id="profile-avatar-initial">U</div>
+                    <h3 class="text-xl font-bold mb-1 truncate max-w-full" id="profile-email-display">user@mail.com</h3>
+                    <p class="text-sm text-gray-400 mb-6">ID: <span id="profile-uid-display" class="font-mono text-xs bg-gray-100 px-2 py-1 rounded">-</span></p>
+                    
+                    <div class="w-full border-t border-gray-100 pt-6 mt-2">
+                        <button id="btn-logout-mobile" class="w-full py-3 bg-red-600 text-white rounded-xl font-bold hover:bg-red-700 transition shadow-sm active:scale-95 flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-arrow-right-from-bracket"></i> Keluar dari Aplikasi
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 fade-in">
+                     <h3 class="font-bold text-lg mb-4 border-b border-gray-100 pb-2">Tentang Aplikasi</h3>
+                     <div class="space-y-3 text-sm text-gray-600">
+                         <div class="flex justify-between"><span class="font-semibold">Aplikasi</span><span>Barberman.Id POS</span></div>
+                         <div class="flex justify-between"><span class="font-semibold">Versi</span><span>2.0.0</span></div>
+                         <div class="flex justify-between"><span class="font-semibold">Developer</span><span>Barberman.Id Team</span></div>
+                     </div>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- MOBILE FLOATING NAV -->
+        <nav class="md:hidden fixed bottom-4 left-4 right-4 bg-black/90 backdrop-blur-lg rounded-3xl flex justify-between px-4 py-3 z-40 shadow-2xl border border-white/10">
+            <div id="mobile-nav-container" class="flex justify-between w-full"></div>
+        </nav>
+    </div>
+
+    <!-- PAYMENT BOTTOM SHEET -->
+    <div id="payment-sheet-overlay" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex-col justify-end">
+        <div id="payment-sheet" class="bg-white w-full max-w-lg mx-auto rounded-t-[32px] p-6 pb-12 sheet-exit transition-transform relative max-h-[90vh] overflow-y-auto shadow-2xl">
+            <div class="w-12 h-1.5 bg-gray-300 rounded-full mx-auto mb-6"></div>
+            
+            <div class="flex justify-between items-start mb-6">
+                <div>
+                    <p class="text-sm font-bold text-gray-400 uppercase">Invoice</p>
+                    <h3 class="text-2xl font-extrabold tracking-tight truncate text-overflow-wrap" id="ps-customer">Nama Customer</h3>
+                    <p class="text-sm text-gray-500" id="ps-capster-display">Capster</p>
+                </div>
+                <div class="bg-black text-white px-4 py-2 rounded-xl text-sm font-bold shadow-lg whitespace-nowrap" id="ps-antrian">A00</div>
+            </div>
+
+            <div class="bg-gray-50 rounded-2xl p-5 mb-6 border border-gray-100">
+                <div class="flex justify-between mb-2">
+                    <span class="text-gray-500 text-sm">Layanan</span>
+                    <span class="font-bold text-sm truncate text-overflow-wrap ml-4" id="ps-layanan">-</span>
+                </div>
+                <div class="flex justify-between mb-2">
+                    <span class="text-gray-500 text-sm">Produk</span>
+                    <span class="font-bold text-sm truncate text-overflow-wrap ml-4" id="ps-produk">-</span>
+                </div>
+                <div class="border-t border-gray-200 my-3"></div>
+                <div class="flex justify-between items-center">
+                    <span class="font-extrabold text-black uppercase text-sm">Total Tagihan</span>
+                    <span class="font-extrabold text-2xl text-black truncate text-overflow-wrap" id="ps-total">Rp 0</span>
+                </div>
+            </div>
+
+            <div id="ps-method-selector" class="mb-6">
+                <label class="block text-xs font-bold text-gray-500 uppercase mb-3">Ubah Metode Pembayaran</label>
+                <div class="grid grid-cols-4 gap-2" id="ps-method-buttons"></div>
+            </div>
+
+            <div id="ps-content-dynamic" class="mb-8"></div>
+
+            <div id="ps-cash-calculator" class="mb-8 hidden">
+                <label class="block text-sm font-bold text-gray-700 mb-2">Uang Diterima</label>
+                <div class="relative">
+                    <span class="absolute left-4 top-3.5 text-gray-400 font-bold">Rp</span>
+                    <input type="number" id="ps-uang-diterima" class="w-full bg-gray-50 border-2 border-gray-200 rounded-xl pl-12 pr-4 py-3 text-xl font-bold focus:bg-white focus:border-black transition-all" placeholder="0">
+                </div>
+                <div class="flex justify-between items-center bg-green-50 p-4 rounded-xl border border-green-100 mt-3">
+                    <span class="font-bold text-green-800 text-sm uppercase">Kembalian</span>
+                    <span class="font-extrabold text-xl text-green-600 truncate text-overflow-wrap" id="ps-kembalian">Rp 0</span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3 mt-auto">
+                <button id="btn-ps-batal" class="col-span-1 py-4 bg-gray-100 text-gray-700 rounded-xl font-bold hover:bg-gray-200 transition">Tutup</button>
+                <button id="btn-ps-selesai" class="col-span-1 py-4 bg-black text-white rounded-xl font-bold hover:bg-gray-800 transition shadow-lg">Selesai</button>
+                <button id="btn-ps-cetak" class="col-span-2 py-4 border-2 border-dashed border-gray-300 text-gray-600 rounded-xl font-bold hover:bg-gray-50 hover:border-black transition flex justify-center items-center gap-2">
+                    <i class="fa-solid fa-print"></i> Cetak Struk
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PRINT AREA -->
+    <div id="print-area" class="hidden no-print">
+        <div style="text-align: center; margin-bottom: 20px; font-family: monospace;">
+            <img src="https://cdn-icons-png.flaticon.com/512/2903/2903961.png" alt="Logo" style="width: 50px; margin-bottom: 10px;">
+            <h2 style="margin:0; font-size: 24px; font-weight: bold;">BARBERMAN.ID</h2>
+            <p style="margin:5px 0; font-size: 12px;">Potongan Rambut Pria Profesional</p>
+            <p style="margin:5px 0; font-size: 12px;" id="print-date">-</p>
+        </div>
+        <hr style="border-top: 1px dashed black; margin-bottom: 10px;">
+        <div style="margin-bottom: 10px; font-size: 14px;">
+            <p><strong>Antrian:</strong> <span id="print-antrian">-</span></p>
+            <p><strong>Pelanggan:</strong> <span id="print-customer">-</span></p>
+            <p><strong>Telepon:</strong> <span id="print-phone">-</span></p>
+            <p><strong>Capster:</strong> <span id="print-capster">-</span></p>
+        </div>
+        <hr style="border-top: 1px dashed black; margin-bottom: 10px;">
+        <table style="width: 100%; text-align: left; margin-bottom: 10px; font-size: 14px;">
+            <tr><td>Layanan</td><td style="text-align: right;" id="print-layanan-price">-</td></tr>
+            <tr><td>Produk</td><td style="text-align: right;" id="print-produk-price">-</td></tr>
+        </table>
+        <hr style="border-top: 1px dashed black; margin-bottom: 10px;">
+        <table style="width: 100%; text-align: left; margin-bottom: 20px; font-size: 14px;">
+            <tr><td><strong>TOTAL</strong></td><td style="text-align: right;"><strong><span id="print-total">-</span></strong></td></tr>
+            <tr><td>Metode</td><td style="text-align: right;" id="print-metode">-</td></tr>
+            <tr id="print-row-bayar"><td>Bayar</td><td style="text-align: right;" id="print-bayar">-</td></tr>
+            <tr id="print-row-kembali"><td>Kembali</td><td style="text-align: right;" id="print-kembali">-</td></tr>
+        </table>
+        <div style="text-align: center; margin-top: 30px;">
+            <p style="font-size: 16px; font-weight: bold;">*** LUNAS ***</p>
+            <p style="font-size: 12px; margin-top: 10px;">Terima kasih & sampai jumpa!</p>
+        </div>
+    </div>
+
+    <!-- LOGIC -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, doc, updateDoc, deleteDoc, serverTimestamp, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // --- KONFIGURASI FIREBASE ---
+        let firebaseConfig = {};
+        if (typeof __firebase_config !== 'undefined') {
+            firebaseConfig = JSON.parse(__firebase_config);
+        } else {
+            firebaseConfig = {
+                apiKey: "AIzaSyCtVLpWt9_Bi4mhaqDzukahnZu9vOTMj9I",
+                authDomain: "barbermanid-e3082.firebaseapp.com",
+                projectId: "barbermanid-e3082",
+                storageBucket: "barbermanid-e3082.firebasestorage.app",
+                messagingSenderId: "516757337118",
+                appId: "1:516757337118:web:f11c24aeace9ffef216a0f",
+                measurementId: "G-EE97LGQ7ET"
+            };
+        }
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // --- STATE GLOBAL ---
+        let currentUser = null;
+        let dbPrefix = ""; 
+        let capsters = [];
+        let services = [];
+        let products = [];
+        let transactions = [];
+        let logs = [];
+        let currentTxId = null;
+        let currentTempMethod = ""; 
+        let selectedPaymentFilter = 'all';
+        let searchPaymentQuery = '';
+
+        // --- UTILS ---
+        const formatRp = (num) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num);
+        const showToast = (msg) => {
+            const t = document.getElementById("toast");
+            t.className = "show";
+            t.innerText = msg;
+            setTimeout(() => { t.className = t.className.replace("show", ""); }, 3000);
+        };
+        const generateID = () => Math.random().toString(36).substr(2, 9);
+
+        // --- AUTHENTICATION ---
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                dbPrefix = `users/${user.uid}`;
+                localStorage.setItem('barberman_uid', user.uid);
+                localStorage.setItem('barberman_email', user.email);
+                
+                // Update Desktop Sidebar UI
+                document.getElementById('user-email-display').innerText = user.email;
+                document.getElementById('user-avatar-initial').innerText = user.email.charAt(0).toUpperCase();
+                
+                // Update Profile Page UI
+                document.getElementById('profile-email-display').innerText = user.email;
+                document.getElementById('profile-avatar-initial').innerText = user.email.charAt(0).toUpperCase();
+                document.getElementById('profile-uid-display').innerText = user.uid;
+
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('app-wrapper').classList.remove('hidden');
+                initApp();
+                const lastTab = localStorage.getItem('last_active_tab') || 'kasir';
+                switchTab(lastTab);
+            } else {
+                currentUser = null;
+                dbPrefix = "";
+                localStorage.removeItem('barberman_uid');
+                document.getElementById('login-screen').classList.remove('hidden');
+                document.getElementById('app-wrapper').classList.add('hidden');
+            }
+        });
+
+        document.getElementById('btn-email-login').addEventListener('click', () => {
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            if(!email || !password) {
+                showToast("Masukkan Email dan Password");
+                return;
+            }
+            signInWithEmailAndPassword(auth, email, password).catch((error) => {
+                console.error(error);
+                if(error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
+                    showToast("Email atau Password salah!");
+                } else {
+                    showToast("Login Gagal: " + error.message);
+                }
+            });
+        });
+
+        const logoutUser = () => {
+            if(confirm("Keluar dari aplikasi?")) signOut(auth);
+        };
+
+        document.getElementById('btn-logout-desktop').addEventListener('click', logoutUser);
+        document.getElementById('btn-logout-mobile').addEventListener('click', logoutUser);
+
+        // --- INIT ---
+        const initApp = () => {
+            renderNav();
+            setupFirestoreListeners();
+            checkDataIntegrity();
+        };
+
+        const checkDataIntegrity = () => {
+            if (services.length === 0 || capsters.length === 0) {
+                document.getElementById('data-status-badge').classList.remove('hidden');
+                showToast("Data Masih Kosong, Silakan isi Pengaturan!");
+            } else {
+                document.getElementById('data-status-badge').classList.add('hidden');
+            }
+        };
+
+        // --- AUTO QUEUE ---
+        const updateAutoQueue = () => {
+            const sortedTx = [...transactions].sort((a,b) => b.timestamp - a.timestamp);
+            let nextNum = 1;
+            if (sortedTx.length > 0) {
+                const last = sortedTx[0];
+                if(last && last.antrian) {
+                    const match = last.antrian.match(/\d+/);
+                    if(match) nextNum = parseInt(match[0]) + 1;
+                }
+            }
+            document.getElementById('kasir-antrian').value = 'A' + String(nextNum).padStart(2, '0');
+        };
+
+        // --- FIREBASE ---
+        const setupFirestoreListeners = () => {
+            onSnapshot(collection(db, `${dbPrefix}/capsters`), (snap) => {
+                capsters = snap.docs.map(d => ({id: d.id, ...d.data()}));
+                renderCapsterDropdowns();
+                renderSettingsLists();
+                checkDataIntegrity();
+            });
+            onSnapshot(collection(db, `${dbPrefix}/services`), (snap) => {
+                services = snap.docs.map(d => ({id: d.id, ...d.data()}));
+                renderServiceDropdowns();
+                renderSettingsLists();
+                checkDataIntegrity();
+            });
+            onSnapshot(collection(db, `${dbPrefix}/products`), (snap) => {
+                products = snap.docs.map(d => ({id: d.id, ...d.data()}));
+                renderProductDropdowns();
+                renderSettingsLists();
+            });
+            onSnapshot(collection(db, `${dbPrefix}/transactions`), (snap) => {
+                transactions = snap.docs.map(d => ({id: d.id, ...d.data()}));
+                transactions.sort((a,b) => b.timestamp - a.timestamp);
+                renderPaymentList();
+                renderLaporan();
+                if(localStorage.getItem('last_active_tab') === 'kasir') updateAutoQueue();
+            });
+            onSnapshot(collection(db, `${dbPrefix}/logs`), (snap) => {
+                logs = snap.docs.map(d => ({id: d.id, ...d.data()}));
+                logs.sort((a,b) => b.timestamp - a.timestamp);
+                renderAbsensi();
+            });
+        };
+
+        // --- NAV ---
+        const tabs = [
+            { id: 'kasir', icon: 'fa-calculator', label: 'Kasir' },
+            { id: 'pembayaran', icon: 'fa-money-bill-wave', label: 'Bayar' },
+            { id: 'laporan', icon: 'fa-chart-simple', label: 'Laporan' },
+            { id: 'absensi', icon: 'fa-user-clock', label: 'Absen' },
+            { id: 'settings', icon: 'fa-gear', label: 'Setting' },
+            { id: 'profile', icon: 'fa-user-circle', label: 'Profil' }
+        ];
+
+        const renderNav = () => {
+            const desktopNav = document.getElementById('desktop-nav');
+            const mobileNav = document.getElementById('mobile-nav-container');
+            desktopNav.innerHTML = '';
+            mobileNav.innerHTML = '';
+            tabs.forEach(tab => {
+                const btn = document.createElement('button');
+                btn.className = "nav-btn w-full flex items-center gap-4 px-4 py-3 rounded-2xl transition-all duration-200 text-gray-400 hover:text-white hover:bg-gray-900 font-semibold";
+                btn.dataset.tab = tab.id;
+                btn.innerHTML = `<i class="fa-solid ${tab.icon} w-6 text-lg"></i> ${tab.label}`;
+                btn.onclick = (e) => switchTab(tab.id);
+                desktopNav.appendChild(btn);
+                
+                const btnMob = document.createElement('button');
+                btnMob.className = "nav-btn-mobile flex flex-col items-center gap-1 text-white opacity-50 transition-all duration-200";
+                btnMob.dataset.tab = tab.id;
+                btnMob.innerHTML = `<i class="fa-solid ${tab.icon} text-lg mb-0.5"></i><span class="text-[9px] font-medium">${tab.label}</span>`;
+                btnMob.onclick = (e) => switchTab(tab.id);
+                mobileNav.appendChild(btnMob);
+            });
+        };
+
+        const switchTab = (tabId) => {
+            if(tabId === 'topcapster') {
+                document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
+                const target = document.getElementById(`view-${tabId}`);
+                if(target) { target.classList.remove('hidden'); target.classList.add('fade-in'); }
+                return;
+            }
+            localStorage.setItem('last_active_tab', tabId);
+            document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
+            const target = document.getElementById(`view-${tabId}`);
+            if(target) { target.classList.remove('hidden'); target.classList.add('fade-in'); }
+            if(tabId === 'kasir') { updateAutoQueue(); }
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                if(btn.dataset.tab === tabId) { btn.className = "nav-btn w-full flex items-center gap-4 px-4 py-3 rounded-2xl transition-all duration-200 bg-white text-black font-bold shadow-md"; }
+                else { btn.className = "nav-btn w-full flex items-center gap-4 px-4 py-3 rounded-2xl transition-all duration-200 text-gray-400 hover:text-white hover:bg-gray-900 font-semibold"; }
+            });
+            document.querySelectorAll('.nav-btn-mobile').forEach(btn => {
+                if(btn.dataset.tab === tabId) { btn.classList.remove('opacity-50'); btn.classList.add('opacity-100', 'scale-110'); }
+                else { btn.classList.add('opacity-50'); btn.classList.remove('opacity-100', 'scale-110'); }
+            });
+        };
+
+        // --- SETTINGS ---
+        document.getElementById('form-add-capster').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await addDoc(collection(db, `${dbPrefix}/capsters`), { name: document.getElementById('input-capster').value });
+            document.getElementById('input-capster').value = '';
+            showToast("Capster ditambahkan");
+        });
+        const deleteCapster = async (id) => {
+            if(confirm("Hapus Capster ini?")) await deleteDoc(doc(db, `${dbPrefix}/capsters`, id));
+        };
+        document.getElementById('form-add-service').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('input-service-name').value;
+            const price = parseInt(document.getElementById('input-service-price').value);
+            await addDoc(collection(db, `${dbPrefix}/services`), { name, price });
+            document.getElementById('input-service-name').value = '';
+            document.getElementById('input-service-price').value = '';
+            showToast("Layanan ditambahkan");
+        });
+        const deleteService = async (id) => {
+            if(confirm("Hapus Layanan ini?")) await deleteDoc(doc(db, `${dbPrefix}/services`, id));
+        };
+        document.getElementById('form-add-product').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('input-product-name').value;
+            const price = parseInt(document.getElementById('input-product-price').value);
+            await addDoc(collection(db, `${dbPrefix}/products`), { name, price });
+            document.getElementById('input-product-name').value = '';
+            document.getElementById('input-product-price').value = '';
+            showToast("Produk ditambahkan");
+        });
+        const deleteProduct = async (id) => {
+            if(confirm("Hapus Produk ini?")) await deleteDoc(doc(db, `${dbPrefix}/products`, id));
+        };
+        const renderSettingsLists = () => {
+            const cList = document.getElementById('list-capsters');
+            cList.innerHTML = capsters.map(c => `<li class="flex justify-between items-center bg-gray-50 px-3 py-2 rounded-lg border border-gray-100"><span class="font-semibold text-sm truncate">${c.name}</span><button onclick="window.deleteItem('capster', '${c.id}')" class="text-red-500 hover:text-red-700 flex-shrink-0 ml-2"><i class="fa-solid fa-trash"></i></button></li>`).join('');
+            const sList = document.getElementById('list-services');
+            sList.innerHTML = services.map(s => `<li class="flex justify-between items-center bg-gray-50 px-3 py-2 rounded-lg border border-gray-100"><div class="min-w-0 mr-2"><span class="font-bold text-sm block truncate">${s.name}</span><span class="text-xs text-gray-500 truncate">${formatRp(s.price)}</span></div><button onclick="window.deleteItem('service', '${s.id}')" class="text-red-500 hover:text-red-700 flex-shrink-0"><i class="fa-solid fa-trash"></i></button></li>`).join('');
+            const pList = document.getElementById('list-products');
+            pList.innerHTML = products.map(p => `<li class="flex justify-between items-center bg-gray-50 px-3 py-2 rounded-lg border border-gray-100"><div class="min-w-0 mr-2"><span class="font-bold text-sm block truncate">${p.name}</span><span class="text-xs text-gray-500 truncate">${formatRp(p.price)}</span></div><button onclick="window.deleteItem('product', '${p.id}')" class="text-red-500 hover:text-red-700 flex-shrink-0"><i class="fa-solid fa-trash"></i></button></li>`).join('');
+        };
+        window.deleteItem = async (type, id) => {
+            if(type === 'capster') await deleteCapster(id);
+            if(type === 'service') await deleteService(id);
+            if(type === 'product') await deleteProduct(id);
+        };
+
+        // --- DROPDOWNS ---
+        const renderCapsterDropdowns = () => {
+            const targets = ['kasir-capster', 'absen-nama'];
+            targets.forEach(tid => {
+                const el = document.getElementById(tid);
+                if(!el) return;
+                const current = el.value;
+                el.innerHTML = `<option value="" disabled selected>-- Pilih Capster --</option>` + capsters.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+                if(current) el.value = current;
+            });
+        };
+        const renderServiceDropdowns = () => {
+            const el = document.getElementById('kasir-layanan');
+            const current = el.value;
+            el.innerHTML = `<option value="" disabled selected>-- Pilih Layanan --</option>` + services.map(s => `<option value="${s.id}" data-price="${s.price}">${s.name}</option>`).join('');
+            if(current) el.value = current;
+        };
+        const renderProductDropdowns = () => {
+            const el = document.getElementById('kasir-produk');
+            const current = el.value;
+            el.innerHTML = `<option value="">Tidak ada</option>` + products.map(p => `<option value="${p.id}" data-price="${p.price}">${p.name}</option>`).join('');
+            if(current) el.value = current;
+        };
+
+        // --- KASIR ---
+        document.querySelectorAll('.pay-method-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.pay-method-btn').forEach(b => { b.classList.remove('bg-black', 'text-white', 'border-black'); b.classList.add('bg-white', 'text-gray-500', 'border-gray-200'); });
+                e.target.classList.remove('bg-white', 'text-gray-500', 'border-gray-200'); e.target.classList.add('bg-black', 'text-white', 'border-black');
+                document.getElementById('kasir-metode').value = e.target.dataset.val;
+            });
+        });
+        const updateTotal = () => {
+            const serviceId = document.getElementById('kasir-layanan').value;
+            const productId = document.getElementById('kasir-produk').value;
+            let total = 0;
+            if(serviceId) { const s = services.find(x => x.id === serviceId); if(s) total += s.price; }
+            if(productId) { const p = products.find(x => x.id === productId); if(p) total += p.price; }
+            document.getElementById('kasir-total-display').innerText = formatRp(total);
+            return total;
+        };
+        document.getElementById('kasir-layanan').addEventListener('change', updateTotal);
+        document.getElementById('kasir-produk').addEventListener('change', updateTotal);
+        document.getElementById('form-kasir').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if(capsters.length === 0 || services.length === 0) { showToast("Harap isi data Capster dan Layanan di menu Pengaturan terlebih dahulu."); switchTab('settings'); return; }
+            const capster = capsters.find(c => c.id === document.getElementById('kasir-capster').value);
+            const service = services.find(s => s.id === document.getElementById('kasir-layanan').value);
+            const product = products.find(p => p.id === document.getElementById('kasir-produk').value);
+            const txData = {
+                antrian: document.getElementById('kasir-antrian').value,
+                nama: document.getElementById('kasir-nama').value,
+                telepon: document.getElementById('kasir-telepon').value || '-',
+                capsterName: capster.name,
+                serviceName: service.name,
+                servicePrice: service.price,
+                productName: product ? product.name : null,
+                productPrice: product ? product.price : 0,
+                metode: document.getElementById('kasir-metode').value,
+                catatan: document.getElementById('kasir-catatan').value,
+                total: updateTotal(),
+                status: 'Belum Lunas',
+                terima: 0,
+                kembali: 0,
+                timestamp: Date.now()
+            };
+            const btn = document.getElementById('btn-submit-kasir');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Memproses...';
+            btn.disabled = true;
+            try {
+                await addDoc(collection(db, `${dbPrefix}/transactions`), txData);
+                document.getElementById('form-kasir').reset();
+                updateTotal();
+                showToast("Pesanan berhasil dibuat!");
+                switchTab('pembayaran');
+            } catch(err) { showToast("Error: " + err.message); } finally { btn.innerHTML = originalText; btn.disabled = false; updateAutoQueue(); }
+        });
+
+        // --- PEMBAYARAN ---
+        const sheetOverlay = document.getElementById('payment-sheet-overlay');
+        const sheet = document.getElementById('payment-sheet');
+        
+        document.getElementById('search-payment').addEventListener('input', (e) => {
+            searchPaymentQuery = e.target.value.toLowerCase();
+            renderPaymentList();
+        });
+
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.filter-btn').forEach(b => { b.className = "filter-btn px-6 py-2.5 rounded-full bg-white text-gray-500 font-bold text-sm whitespace-nowrap shadow-sm border border-gray-200"; });
+                e.target.className = "filter-btn px-6 py-2.5 rounded-full bg-black text-white font-bold text-sm whitespace-nowrap shadow-lg";
+                selectedPaymentFilter = e.target.dataset.filter;
+                renderPaymentList();
+            });
+        });
+
+        window.cancelOrder = async (id) => {
+            if(confirm("Yakin batalkan pesanan ini?")) {
+                await updateDoc(doc(db, `${dbPrefix}/transactions`, id), { status: 'Dibatalkan', metode: 'Void' });
+                showToast("Pesanan dibatalkan");
+            }
+        };
+
+        const renderPaymentList = () => {
+            const list = document.getElementById('payment-list');
+            list.innerHTML = '';
+            let filtered = transactions;
+            
+            if (selectedPaymentFilter === 'belum') filtered = transactions.filter(t => t.status === 'Belum Lunas');
+            if (selectedPaymentFilter === 'lunas') filtered = transactions.filter(t => t.status === 'Lunas');
+            if (selectedPaymentFilter === 'batal') filtered = transactions.filter(t => t.status === 'Dibatalkan');
+            if (selectedPaymentFilter === 'all') filtered = transactions.filter(t => t.status !== 'Dibatalkan');
+
+            if (searchPaymentQuery) {
+                filtered = filtered.filter(t => t.nama.toLowerCase().includes(searchPaymentQuery) || t.antrian.toLowerCase().includes(searchPaymentQuery) || t.id.includes(searchPaymentQuery));
+            }
+
+            if(filtered.length === 0) { list.innerHTML = `<div class="col-span-full text-center py-10 opacity-50">Tidak ada transaksi.</div>`; return; }
+
+            filtered.forEach(tx => {
+                const isLunas = tx.status === 'Lunas';
+                const isBatal = tx.status === 'Dibatalkan';
+                const div = document.createElement('div');
+                div.className = "bg-white p-5 rounded-3xl shadow-sm border border-gray-100 flex flex-col relative transition active:scale-95";
+                if (!isLunas && !isBatal) { div.classList.add('cursor-pointer', 'hover:shadow-md'); div.onclick = () => openPaymentSheet(tx); }
+                let statusBadge = isLunas ? `<span class="px-3 py-1 rounded-lg text-xs font-bold bg-green-100 text-green-700">Lunas</span>` : (isBatal ? `<span class="px-3 py-1 rounded-lg text-xs font-bold bg-gray-200 text-gray-500">Batal</span>` : `<span class="px-3 py-1 rounded-lg text-xs font-bold bg-red-100 text-red-600">Belum Lunas</span>`);
+                let actionBtn = (!isLunas && !isBatal) ? `<button onclick="event.stopPropagation(); window.cancelOrder('${tx.id}')" class="text-gray-300 hover:text-red-500 transition p-2"><i class="fa-solid fa-ban"></i></button>` : '';
+                div.innerHTML = `<div class="flex justify-between items-start mb-3"><span class="px-3 py-1 bg-black text-white rounded-lg text-xs font-bold tracking-wide">${tx.antrian}</span><div class="flex items-center gap-2">${statusBadge}${actionBtn}</div></div><h4 class="font-bold text-lg text-black mb-1 truncate text-overflow-wrap">${tx.nama}</h4><p class="text-sm text-gray-500 mb-4 line-clamp-1">${tx.capsterName} • ${tx.serviceName}</p><div class="mt-auto pt-3 border-t border-gray-100 flex justify-between items-center"><span class="text-xs font-bold text-gray-400 uppercase">${tx.metode}</span><span class="font-extrabold text-black truncate text-overflow-wrap">${formatRp(tx.total)}</span></div>`;
+                list.appendChild(div);
+            });
+        };
+
+        const openPaymentSheet = (tx) => {
+            currentTxId = tx.id;
+            currentTempMethod = tx.metode; 
+            document.getElementById('ps-customer').innerText = tx.nama;
+            document.getElementById('ps-antrian').innerText = tx.antrian;
+            document.getElementById('ps-capster-display').innerText = tx.capsterName;
+            document.getElementById('ps-layanan').innerText = tx.serviceName;
+            document.getElementById('ps-produk').innerText = tx.productName ? tx.productName : '-';
+            document.getElementById('ps-total').innerText = formatRp(tx.total);
+            const methods = ['Cash', 'QRIS', 'E-Wallet', 'Transfer'];
+            const methodContainer = document.getElementById('ps-method-buttons');
+            methodContainer.innerHTML = methods.map(m => `<button type="button" class="ps-pay-method-btn py-2 rounded-lg font-bold text-xs border transition-colors ${m === currentTempMethod ? 'bg-black text-white border-black' : 'bg-white text-gray-500 border-gray-200 hover:border-gray-400'}" data-val="${m}">${m}</button>`).join('');
+            methodContainer.querySelectorAll('.ps-pay-method-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    methodContainer.querySelectorAll('.ps-pay-method-btn').forEach(b => { b.className = "ps-pay-method-btn py-2 rounded-lg font-bold text-xs border transition-colors bg-white text-gray-500 border-gray-200 hover:border-gray-400"; });
+                    e.target.className = "ps-pay-method-btn py-2 rounded-lg font-bold text-xs border transition-colors bg-black text-white border-black";
+                    currentTempMethod = e.target.dataset.val;
+                    updateSheetUI(currentTempMethod, tx.total);
+                });
+            });
+            const dynContent = document.getElementById('ps-content-dynamic');
+            const cashCalc = document.getElementById('ps-cash-calculator');
+            const btnSelesai = document.getElementById('btn-ps-selesai');
+            dynContent.innerHTML = '';
+            updateSheetUI(currentTempMethod, tx.total);
+            if (tx.status === 'Lunas') {
+                btnSelesai.disabled = true; btnSelesai.classList.add('opacity-50', 'cursor-not-allowed'); btnSelesai.innerText = "Sudah Lunas"; methodContainer.classList.add('opacity-50', 'pointer-events-none');
+            } else {
+                btnSelesai.disabled = false; btnSelesai.classList.remove('opacity-50', 'cursor-not-allowed'); btnSelesai.innerText = "Selesai"; methodContainer.classList.remove('opacity-50', 'pointer-events-none');
+            }
+            sheetOverlay.classList.remove('hidden');
+            sheetOverlay.classList.add('flex');
+            requestAnimationFrame(() => { sheet.classList.remove('sheet-exit', 'sheet-exit-active'); sheet.classList.add('sheet-enter-active'); });
+        };
+
+        const updateSheetUI = (method, total) => {
+            const cashCalc = document.getElementById('ps-cash-calculator');
+            const dynContent = document.getElementById('ps-content-dynamic');
+            dynContent.innerHTML = '';
+            cashCalc.classList.add('hidden');
+            if (method === 'QRIS') { dynContent.innerHTML = `<div class="text-center p-6 bg-gray-50 rounded-2xl border border-dashed border-gray-300 animate-pulse"><i class="fa-solid fa-qrcode text-5xl text-gray-400 mb-3"></i><p class="text-xs font-bold text-gray-500">SCAN QRIS DUMMY</p></div>`; }
+            else if (method === 'Cash') {
+                cashCalc.classList.remove('hidden');
+                const inp = document.getElementById('ps-uang-diterima'); inp.value = ''; 
+                inp.oninput = (e) => { const val = parseInt(e.target.value) || 0; let kemb = val - total; if(kemb < 0) kemb = 0; document.getElementById('ps-kembalian').innerText = formatRp(kemb); };
+            } else { dynContent.innerHTML = `<div class="p-4 bg-blue-50 text-blue-700 rounded-xl text-center text-sm font-bold"><i class="fa-solid fa-mobile-screen mr-2"></i>Siapkan ${method}</div>`; }
+        };
+
+        const closePaymentSheet = () => {
+            sheet.classList.remove('sheet-enter-active'); sheet.classList.add('sheet-exit-active');
+            setTimeout(() => { sheetOverlay.classList.add('hidden'); sheetOverlay.classList.remove('flex'); }, 300);
+            currentTxId = null;
+        };
+        document.getElementById('btn-ps-batal').addEventListener('click', closePaymentSheet);
+        sheetOverlay.addEventListener('click', (e) => { if(e.target === sheetOverlay) closePaymentSheet(); });
+
+        document.getElementById('btn-ps-selesai').addEventListener('click', async () => {
+            if(!currentTxId) return;
+            const tx = transactions.find(t => t.id === currentTxId);
+            let terima = tx.total; let kembali = 0;
+            if(currentTempMethod === 'Cash') {
+                terima = parseInt(document.getElementById('ps-uang-diterima').value) || 0;
+                if(terima < tx.total) { showToast("Uang kurang!"); return; }
+                kembali = terima - tx.total;
+            }
+            await updateDoc(doc(db, `${dbPrefix}/transactions`, currentTxId), { status: 'Lunas', metode: currentTempMethod, terima, kembali });
+            showToast("Pembayaran Lunas!"); closePaymentSheet();
+        });
+
+        document.getElementById('btn-ps-cetak').addEventListener('click', () => {
+            if(!currentTxId) return;
+            const tx = transactions.find(t => t.id === currentTxId);
+            document.getElementById('print-date').innerText = new Date(tx.timestamp).toLocaleString('id-ID');
+            document.getElementById('print-antrian').innerText = tx.antrian;
+            document.getElementById('print-customer').innerText = tx.nama;
+            document.getElementById('print-phone').innerText = tx.telepon || '-';
+            document.getElementById('print-capster').innerText = tx.capsterName;
+            document.getElementById('print-layanan-price').innerText = `${tx.serviceName} (${formatRp(tx.servicePrice)})`;
+            document.getElementById('print-produk-price').innerText = tx.productName ? `${tx.productName} (${formatRp(tx.productPrice)})` : '-';
+            document.getElementById('print-total').innerText = formatRp(tx.total);
+            document.getElementById('print-metode').innerText = tx.metode;
+            if(tx.metode === 'Cash') { document.getElementById('print-row-bayar').style.display = 'table-row'; document.getElementById('print-row-kembali').style.display = 'table-row'; document.getElementById('print-bayar').innerText = formatRp(tx.terima); document.getElementById('print-kembali').innerText = formatRp(tx.kembali); }
+            else { document.getElementById('print-row-bayar').style.display = 'none'; document.getElementById('print-row-kembali').style.display = 'none'; }
+            window.print();
+        });
+
+        // --- TOP CAPSTER DETAIL ---
+        window.showTopCapsterDetail = (capsterName) => {
+            const period = document.getElementById('report-period-select').value;
+            const { start, end } = getDateRange(period);
+            const capsterTx = transactions.filter(t => t.status === 'Lunas' && t.capsterName === capsterName && t.timestamp >= start.getTime() && t.timestamp <= end.getTime());
+            const totalRevenue = capsterTx.reduce((sum, t) => sum + t.total, 0);
+            document.getElementById('detail-capster-avatar').innerText = capsterName.charAt(0).toUpperCase();
+            document.getElementById('detail-capster-name').innerText = capsterName;
+            document.getElementById('detail-count').innerText = capsterTx.length;
+            document.getElementById('detail-revenue').innerText = formatRp(totalRevenue);
+            const tbody = document.getElementById('detail-table-body');
+            tbody.innerHTML = '';
+            capsterTx.sort((a,b) => b.timestamp - a.timestamp).forEach(tx => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-gray-50 border-b border-gray-50 last:border-0";
+                tr.innerHTML = `<td class="px-6 py-4 text-gray-500 text-xs md:text-sm">${new Date(tx.timestamp).toLocaleDateString('id-ID')}</td><td class="px-6 py-4 font-bold">${tx.nama}</td><td class="px-6 py-4 truncate max-w-[150px]">${tx.serviceName}</td><td class="px-6 py-4 font-bold truncate text-overflow-wrap">${formatRp(tx.total)}</td><td class="px-6 py-4 text-xs bg-gray-100 rounded px-2 py-1 inline-block">${tx.metode}</td>`;
+                tbody.appendChild(tr);
+            });
+            if(capsterTx.length === 0) { tbody.innerHTML = `<tr><td colspan="5" class="text-center py-6 text-gray-400">Belum ada transaksi pada periode ini.</td></tr>`; }
+            switchTab('topcapster');
+        };
+
+        // --- DATE LOGIC ---
+        const getDateRange = (type) => {
+            const now = new Date();
+            let start = new Date();
+            let end = new Date();
+
+            if (type === 'month') {
+                start.setDate(1); start.setHours(0,0,0,0);
+                end = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+            } else if (type === 'last_month') {
+                start = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+                end = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59);
+            } else if (type === '3_month') {
+                start = new Date(now.getFullYear(), now.getMonth() - 2, 1);
+                end = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+            } else if (type === 'year') {
+                start = new Date(now.getFullYear(), 0, 1);
+                end = new Date(now.getFullYear(), 11, 31, 23, 59, 59);
+            } else {
+                start = new Date(2000, 0, 1);
+                end = new Date();
+            }
+            return { start, end };
+        };
+
+        document.getElementById('report-period-select').addEventListener('change', () => { renderLaporan(); });
+
+        // --- DAILY CHART LOGIC ---
+        const renderDailyChart = (filteredTx) => {
+            const chartSection = document.getElementById('daily-chart-section');
+            const barsContainer = document.getElementById('chart-bars');
+            barsContainer.innerHTML = '';
+            
+            const dailyData = {};
+            filteredTx.forEach(t => {
+                const d = new Date(t.timestamp);
+                const dateKey = d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short' });
+                dailyData[dateKey] = (dailyData[dateKey] || 0) + t.total;
+            });
+
+            const days = Object.keys(dailyData).sort((a,b) => new Date(a) - new Date(b));
+            const period = document.getElementById('report-period-select').value;
+            
+            if (days.length === 0 || (period !== 'month' && period !== 'last_month')) {
+                chartSection.classList.add('hidden');
+                return;
+            }
+
+            chartSection.classList.remove('hidden');
+            const maxVal = Math.max(...Object.values(dailyData));
+            const minBarHeight = 5;
+
+            days.forEach(day => {
+                const val = dailyData[day];
+                const percentage = maxVal > 0 ? (val / maxVal) * 100 : 0;
+                const height = Math.max(percentage, minBarHeight);
+                const dayNumber = day.split(' ')[0];
+
+                const barHtml = `
+                    <div class="flex flex-col items-center flex-1 group relative">
+                        <div class="absolute bottom-full mb-2 opacity-0 group-hover:opacity-100 transition-opacity bg-black text-white text-xs py-1 px-2 rounded whitespace-nowrap z-10 pointer-events-none">
+                            ${day}: ${formatRp(val)}
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-t-sm hover:bg-black transition-all relative" style="height: ${height}%">
+                             <div class="w-full h-full bg-black/10 absolute top-0 left-0"></div>
+                        </div>
+                        <span class="text-[10px] text-gray-400 mt-1 font-bold">${dayNumber}</span>
+                    </div>
+                `;
+                barsContainer.innerHTML += barHtml;
+            });
+        };
+
+        // --- LAPORAN LOGIC ---
+        const renderLaporan = () => {
+            const periodType = document.getElementById('report-period-select').value;
+            const { start, end } = getDateRange(periodType);
+            
+            let totRev = 0, totCount = 0, totCash = 0, totQris = 0, totBank = 0;
+            let capsterStats = {}; 
+            const tbody = document.getElementById('laporan-table-body');
+            tbody.innerHTML = '';
+
+            const filteredTx = transactions.filter(t => t.status === 'Lunas' && t.timestamp >= start.getTime() && t.timestamp <= end.getTime());
+
+            renderDailyChart(filteredTx);
+
+            filteredTx.forEach(tx => {
+                totRev += tx.total;
+                totCount++;
+                
+                if (!capsterStats[tx.capsterName]) {
+                    capsterStats[tx.capsterName] = { count: 0, revenue: 0 };
+                }
+                capsterStats[tx.capsterName].count += 1;
+                capsterStats[tx.capsterName].revenue += tx.total;
+
+                if(tx.metode === 'Cash') totCash += tx.total;
+                else if(tx.metode === 'QRIS') totQris += tx.total;
+                else totBank += tx.total;
+
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-gray-50 border-b border-gray-50 last:border-0";
+                tr.innerHTML = `<td class="px-6 py-4 text-gray-500 text-xs md:text-sm">${new Date(tx.timestamp).toLocaleDateString('id-ID')}</td><td class="px-6 py-4 font-bold">${tx.antrian}</td><td class="px-6 py-4 font-bold text-blue-600">${tx.capsterName}</td><td class="px-6 py-4 truncate max-w-[120px]">${tx.nama}</td><td class="px-6 py-4 text-gray-600 truncate max-w-[120px]">${tx.serviceName}</td><td class="px-6 py-4 font-bold truncate text-overflow-wrap">${formatRp(tx.total)}</td><td class="px-6 py-4"><span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-md font-bold">Lunas</span></td>`;
+                tbody.appendChild(tr);
+            });
+
+            document.getElementById('lap-total-revenue').innerText = formatRp(totRev);
+            document.getElementById('lap-count-tx').innerText = totCount;
+            document.getElementById('lap-average').innerText = totCount > 0 ? formatRp(totRev / totCount) : formatRp(0);
+            document.getElementById('lap-total-cash').innerText = formatRp(totCash);
+            document.getElementById('lap-total-qris').innerText = formatRp(totQris);
+            document.getElementById('lap-total-bank').innerText = formatRp(totBank);
+
+            let topCapName = "-"; let topCapScore = 0;
+            for(let c in capsterStats) { if(capsterStats[c].count > topCapScore) { topCapScore = capsterStats[c].count; topCapName = c; } }
+            const topCapEl = document.getElementById('lap-top-capster');
+            topCapEl.innerText = topCapName;
+            document.getElementById('card-top-capster').onclick = () => { if(topCapName !== '-') showTopCapsterDetail(topCapName); };
+
+            const capsterGrid = document.getElementById('capster-performance-grid');
+            capsterGrid.innerHTML = '';
+            let capNames = Object.keys(capsterStats);
+            if (capNames.length > 0) {
+                capNames.sort((a, b) => capsterStats[b].revenue - capsterStats[a].revenue);
+                
+                capNames.forEach(name => {
+                    const stat = capsterStats[name];
+                    capsterGrid.innerHTML += `
+                        <div class="bg-white p-5 rounded-3xl shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-gray-50 transition-colors" onclick="window.showTopCapsterDetail('${name}')">
+                            <div class="w-12 h-12 rounded-full bg-black text-white flex items-center justify-center font-bold text-lg mb-2">${name.charAt(0)}</div>
+                            <h4 class="font-extrabold text-black">${name}</h4>
+                            <p class="text-xs text-gray-400 mt-1">${stat.count} Transaksi</p>
+                            <p class="font-bold text-green-600 mt-1 text-sm">${formatRp(stat.revenue)}</p>
+                        </div>
+                    `;
+                });
+            } else {
+                capsterGrid.innerHTML = '<div class="col-span-full text-center text-sm text-gray-400 py-4 bg-white rounded-3xl shadow-sm border border-gray-100">Belum ada data capster.</div>';
+            }
+        };
+
+        document.getElementById('btn-download-laporan').addEventListener('click', () => {
+            const periodType = document.getElementById('report-period-select').value;
+            const { start, end } = getDateRange(periodType);
+            let csv = "ID,Antrian,Nama,Telepon,Capster,Layanan,Total,Metode,Status,Timestamp\n";
+            let sumCash = 0, sumQris = 0, sumBank = 0, grandTotal = 0;
+
+            transactions.filter(t => t.status === 'Lunas' && t.timestamp >= start.getTime() && t.timestamp <= end.getTime()).forEach(t => {
+                csv += `${t.id},${t.antrian},${t.nama},${t.telepon || '-'},${t.capsterName},${t.serviceName},${t.total},${t.metode},${t.status},${t.timestamp}\n`;
+                grandTotal += t.total;
+                if(t.metode === 'Cash') sumCash += t.total;
+                else if(t.metode === 'QRIS') sumQris += t.total;
+                else sumBank += t.total;
+            });
+            csv += "\nRINGKASAN PEMBAYARAN\n";
+            csv += `Total Cash,${sumCash}\n`;
+            csv += `Total QRIS,${sumQris}\n`;
+            csv += `Total Bank/E-Wallet,${sumBank}\n`;
+            csv += `GRAND TOTAL,${grandTotal}\n`;
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a'); a.href = url; a.download = `Laporan_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+        });
+
+        // --- ABSENSI ---
+        const renderAbsensi = () => {
+            const isOpen = localStorage.getItem('store_open') === 'true';
+            updateStoreUI(isOpen);
+            const logContainer = document.getElementById('log-absensi');
+            const todayStart = new Date(); todayStart.setHours(0,0,0,0);
+            const todayLogs = logs.filter(l => l.timestamp >= todayStart.getTime());
+            if(todayLogs.length === 0) { logContainer.innerHTML = '<p class="text-gray-400 text-center py-4 text-sm">Belum ada log hari ini.</p>'; }
+            else {
+                logContainer.innerHTML = todayLogs.map(l => `<div class="flex items-center gap-3 p-3 bg-white rounded-xl border border-gray-100 shadow-sm"><span class="text-xs font-mono font-bold text-gray-400 min-w-[60px]">${new Date(l.timestamp).toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'})}</span><span class="text-sm font-bold ${l.type === 'OPEN' ? 'text-green-600' : (l.type === 'CLOSE' ? 'text-red-600' : 'text-black')}">${l.msg}</span></div>`).join('');
+            }
+        };
+
+        const updateStoreUI = (isOpen) => {
+            const icon = document.getElementById('store-status-icon');
+            const text = document.getElementById('store-status-text');
+            const btnBuka = document.getElementById('btn-toko-buka');
+            const btnTutup = document.getElementById('btn-toko-tutup');
+            if(isOpen) {
+                icon.className = "w-24 h-24 rounded-full bg-green-100 text-green-600 flex items-center justify-center mb-6 transition-all shadow-inner";
+                icon.innerHTML = '<i class="fa-solid fa-store text-4xl"></i>';
+                text.innerText = "TOKO BUKA";
+                text.classList.add('text-green-600');
+                btnBuka.disabled = true; btnBuka.classList.add('opacity-50', 'cursor-not-allowed');
+                btnTutup.disabled = false; btnTutup.classList.remove('opacity-50', 'cursor-not-allowed');
+            } else {
+                icon.className = "w-24 h-24 rounded-full bg-red-100 text-red-600 flex items-center justify-center mb-6 transition-all shadow-inner";
+                icon.innerHTML = '<i class="fa-solid fa-store-slash text-4xl"></i>';
+                text.innerText = "TOKO TUTUP";
+                text.classList.remove('text-green-600');
+                btnBuka.disabled = false; btnBuka.classList.remove('opacity-50', 'cursor-not-allowed');
+                btnTutup.disabled = true; btnTutup.classList.add('opacity-50', 'cursor-not-allowed');
+            }
+        };
+
+        const addLog = async (type, msg) => {
+            await addDoc(collection(db, `${dbPrefix}/logs`), { type, msg, timestamp: Date.now() });
+        };
+
+        document.getElementById('btn-toko-buka').addEventListener('click', async () => {
+            localStorage.setItem('store_open', 'true');
+            updateStoreUI(true);
+            await addLog('OPEN', 'Toko Dibuka');
+        });
+
+        document.getElementById('btn-toko-tutup').addEventListener('click', async () => {
+            localStorage.setItem('store_open', 'false');
+            updateStoreUI(false);
+            await addLog('CLOSE', 'Toko Ditutup');
+        });
+
+        document.getElementById('btn-absen-masuk').addEventListener('click', async () => {
+            const id = document.getElementById('absen-nama').value;
+            const c = capsters.find(x => x.id === id);
+            if(!c) return;
+            await addLog('IN', `${c.name} Absen Masuk`);
+            showToast(`${c.name} masuk`);
+        });
+
+        document.getElementById('btn-absen-keluar').addEventListener('click', async () => {
+            const id = document.getElementById('absen-nama').value;
+            const c = capsters.find(x => x.id === id);
+            if(!c) return;
+            await addLog('OUT', `${c.name} Absen Keluar`);
+            showToast(`${c.name} keluar`);
+        });
+
+    </script>
+</body>
+</html>
