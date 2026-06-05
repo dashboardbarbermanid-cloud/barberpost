@@ -212,7 +212,7 @@
                 <div id="expense-list" class="space-y-3"></div>
             </section>
 
-            <!-- VIEW: LAPORAN (CALENDAR & CHART) -->
+            <!-- VIEW: LAPORAN -->
             <section id="view-laporan" class="view-section hidden">
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
                     <div>
@@ -220,9 +220,7 @@
                         <p class="text-gray-500 text-sm mt-1" id="lap-period-subtitle">Bulan Ini</p>
                     </div>
                     <div class="flex gap-2 w-full md:w-auto flex-wrap">
-                        <select id="report-year-select" class="bg-white border border-gray-200 text-black rounded-xl px-4 py-2.5 font-bold shadow-sm focus:ring-2 focus:ring-black text-sm flex-1 md:flex-none">
-                            <!-- Populated by JS -->
-                        </select>
+                        <select id="report-year-select" class="bg-white border border-gray-200 text-black rounded-xl px-4 py-2.5 font-bold shadow-sm focus:ring-2 focus:ring-black text-sm flex-1 md:flex-none"></select>
                         <select id="report-month-select" class="bg-white border border-gray-200 text-black rounded-xl px-4 py-2.5 font-bold shadow-sm focus:ring-2 focus:ring-black text-sm flex-1 md:flex-none">
                             <option value="0">Semua Bulan</option>
                             <option value="1">Januari</option><option value="2">Februari</option><option value="3">Maret</option>
@@ -273,7 +271,9 @@
                     <div class="bg-white p-5 rounded-3xl shadow-sm border border-gray-100 border-l-4 border-l-purple-500"><div class="flex items-center justify-between mb-2"><p class="text-gray-400 text-xs font-bold uppercase">Rekening / E-Wallet</p><i class="fa-solid fa-building-columns text-purple-500"></i></div><h4 class="text-2xl font-extrabold truncate" id="lap-total-bank">Rp 0</h4></div>
                 </div>
 
-                <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+                <!-- TABLE: TRANSAKSI -->
+                <h3 class="font-bold text-lg mb-4">Riwayat Transaksi</h3>
+                <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden mb-8">
                     <div class="overflow-x-auto">
                         <table class="w-full text-left text-sm whitespace-nowrap">
                             <thead class="bg-gray-50 text-gray-500 border-b border-gray-100"><tr><th class="px-6 py-4 font-bold text-xs uppercase w-24">Waktu</th><th class="px-6 py-4 font-bold text-xs uppercase">Antrian</th><th class="px-6 py-4 font-bold text-xs uppercase">Capster</th><th class="px-6 py-4 font-bold text-xs uppercase">Pelanggan</th><th class="px-6 py-4 font-bold text-xs uppercase">Layanan</th><th class="px-6 py-4 font-bold text-xs uppercase w-32">Total</th><th class="px-6 py-4 font-bold text-xs uppercase">Status</th></tr></thead>
@@ -281,6 +281,18 @@
                         </table>
                     </div>
                 </div>
+
+                <!-- TABLE: PENGELUARAN (NEW) -->
+                <h3 class="font-bold text-lg mb-4">Rincian Pengeluaran (Untuk Apa)</h3>
+                <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden mb-8">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm whitespace-nowrap">
+                            <thead class="bg-red-50 text-gray-500 border-b border-gray-100"><tr><th class="px-6 py-4 font-bold text-xs uppercase w-32">Waktu</th><th class="px-6 py-4 font-bold text-xs uppercase">Keterangan (Untuk Apa)</th><th class="px-6 py-4 font-bold text-xs uppercase w-32">Nominal</th></tr></thead>
+                            <tbody id="expense-table-body" class="divide-y divide-gray-50"></tbody>
+                        </table>
+                    </div>
+                </div>
+
             </section>
 
             <!-- VIEW: TOP CAPSTER DETAIL -->
@@ -458,8 +470,15 @@
     <div id="payment-sheet-overlay" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex-col justify-end">
         <div id="payment-sheet" class="bg-white w-full max-w-lg mx-auto rounded-t-[32px] p-6 pb-12 sheet-exit transition-transform relative max-h-[90vh] overflow-y-auto shadow-2xl">
             <div class="w-12 h-1.5 bg-gray-300 rounded-full mx-auto mb-6"></div>
-            <div class="flex justify-between items-start mb-6">
-                <div><p class="text-sm font-bold text-gray-400 uppercase">Invoice</p><h3 class="text-2xl font-extrabold tracking-tight truncate text-overflow-wrap" id="ps-customer">Nama</h3><p class="text-sm text-gray-500" id="ps-capster-display">Capster</p></div>
+            <div class="flex justify-between items-start mb-4">
+                <div class="flex-1 min-w-0 mr-4">
+                    <p class="text-sm font-bold text-gray-400 uppercase">Invoice</p>
+                    <h3 class="text-2xl font-extrabold tracking-tight truncate text-overflow-wrap" id="ps-customer">Nama</h3>
+                    <div class="mt-2">
+                        <input type="tel" id="ps-phone" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-1.5 font-semibold focus:bg-white focus:ring-2 focus:ring-black transition-all text-sm" placeholder="Tambah No. Tlp (Opsional)">
+                    </div>
+                    <p class="text-sm text-gray-500 mt-2" id="ps-capster-display">Capster</p>
+                </div>
                 <div class="bg-black text-white px-4 py-2 rounded-xl text-sm font-bold shadow-lg whitespace-nowrap" id="ps-antrian">A00</div>
             </div>
             <div class="bg-gray-50 rounded-2xl p-5 mb-6 border border-gray-100">
@@ -504,6 +523,7 @@
         <div style="margin-bottom: 10px; font-size: 14px;">
             <p><strong>Antrian:</strong> <span id="print-antrian">-</span></p>
             <p><strong>Pelanggan:</strong> <span id="print-customer">-</span></p>
+            <p><strong>Telepon:</strong> <span id="print-phone">-</span></p>
             <p><strong>Capster:</strong> <span id="print-capster">-</span></p>
         </div>
         <hr style="border-top: 1px dashed black; margin-bottom: 10px;">
@@ -564,7 +584,9 @@
         document.getElementById('btn-email-login').addEventListener('click', () => {
             const email = document.getElementById('login-email').value, password = document.getElementById('login-password').value;
             if(!email || !password) { showToast("Masukkan Email & Password"); return; }
-            signInWithEmailAndPassword(auth, email, password).catch((error) => showToast("Login Gagal: " + error.message));
+            const btn = document.getElementById('btn-email-login'); const originalHTML = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Memproses...'; btn.disabled = true;
+            signInWithEmailAndPassword(auth, email, password).catch((error) => { showToast("Login Gagal: " + error.message); btn.innerHTML = originalHTML; btn.disabled = false; });
         });
 
         const logoutUser = () => { if(confirm("Keluar dari aplikasi?")) signOut(auth); };
@@ -589,22 +611,15 @@
         };
 
         const initReportDropdowns = () => {
-            const yearSel = document.getElementById('report-year-select');
-            const currentYear = new Date().getFullYear();
-            yearSel.innerHTML = '';
-            for(let y = currentYear; y >= 2022; y--) {
-                yearSel.innerHTML += `<option value="${y}">${y}</option>`;
-            }
+            const yearSel = document.getElementById('report-year-select'); const currentYear = new Date().getFullYear(); yearSel.innerHTML = '';
+            for(let y = currentYear; y >= 2022; y--) { yearSel.innerHTML += `<option value="${y}">${y}</option>`; }
             document.getElementById('report-month-select').value = new Date().getMonth() + 1;
         };
 
         const tabs = [
-            { id: 'kasir', icon: 'fa-calculator', label: 'Kasir' },
-            { id: 'pembayaran', icon: 'fa-money-bill-wave', label: 'Bayar' },
-            { id: 'pengeluaran', icon: 'fa-arrow-trend-down', label: 'Keluar' },
-            { id: 'laporan', icon: 'fa-chart-simple', label: 'Laporan' },
-            { id: 'absensi', icon: 'fa-user-clock', label: 'Absen' },
-            { id: 'settings', icon: 'fa-gear', label: 'Setting' }
+            { id: 'kasir', icon: 'fa-calculator', label: 'Kasir' }, { id: 'pembayaran', icon: 'fa-money-bill-wave', label: 'Bayar' },
+            { id: 'pengeluaran', icon: 'fa-arrow-trend-down', label: 'Keluar' }, { id: 'laporan', icon: 'fa-chart-simple', label: 'Laporan' },
+            { id: 'absensi', icon: 'fa-user-clock', label: 'Absen' }, { id: 'settings', icon: 'fa-gear', label: 'Setting' }
         ];
 
         const renderNav = () => {
@@ -617,24 +632,20 @@
                 btnMob.dataset.tab = tab.id; btnMob.innerHTML = `<i class="fa-solid ${tab.icon} text-base mb-0.5"></i><span class="text-[8px] font-medium">${tab.label}</span>`; btnMob.onclick = (e) => switchTab(tab.id); mobileNav.appendChild(btnMob);
             });
             const mobProfile = document.createElement('button'); mobProfile.className = "nav-btn-mobile flex flex-col items-center gap-1 text-white opacity-50 transition-all duration-200 px-1";
-            mobProfile.dataset.tab = 'profile'; mobProfile.innerHTML = `<i class="fa-solid fa-user-circle text-base mb-0.5"></i><span class="text-[8px] font-medium">Profil</span>`;
-            mobProfile.onclick = () => switchTab('profile'); mobileNav.appendChild(mobProfile);
+            mobProfile.dataset.tab = 'profile'; mobProfile.innerHTML = `<i class="fa-solid fa-user-circle text-base mb-0.5"></i><span class="text-[8px] font-medium">Profil</span>`; mobProfile.onclick = () => switchTab('profile'); mobileNav.appendChild(mobProfile);
             const mobLogout = document.createElement('button'); mobLogout.className = "flex flex-col items-center gap-1 text-red-400 opacity-50 transition-all duration-200 px-1";
-            mobLogout.innerHTML = `<i class="fa-solid fa-arrow-right-from-bracket text-base mb-0.5"></i><span class="text-[8px] font-medium">Keluar</span>`;
-            mobLogout.onclick = logoutUser; mobileNav.appendChild(mobLogout);
+            mobLogout.innerHTML = `<i class="fa-solid fa-arrow-right-from-bracket text-base mb-0.5"></i><span class="text-[8px] font-medium">Keluar</span>`; mobLogout.onclick = logoutUser; mobileNav.appendChild(mobLogout);
         };
 
         const switchTab = (tabId) => {
             if(tabId === 'topcapster') { document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden')); document.getElementById(`view-${tabId}`).classList.remove('hidden'); document.getElementById(`view-${tabId}`).classList.add('fade-in'); return; }
-            localStorage.setItem('last_active_tab', tabId);
-            document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden')); const target = document.getElementById(`view-${tabId}`);
+            localStorage.setItem('last_active_tab', tabId); document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden')); const target = document.getElementById(`view-${tabId}`);
             if(target) { target.classList.remove('hidden'); target.classList.add('fade-in'); }
             if(tabId === 'kasir') updateAutoQueue();
             document.querySelectorAll('.nav-btn').forEach(btn => { btn.dataset.tab === tabId ? btn.className = "nav-btn w-full flex items-center gap-4 px-4 py-3 rounded-2xl transition-all duration-200 bg-white text-black font-bold shadow-md" : btn.className = "nav-btn w-full flex items-center gap-4 px-4 py-3 rounded-2xl transition-all duration-200 text-gray-400 hover:text-white hover:bg-gray-900 font-semibold"; });
             document.querySelectorAll('.nav-btn-mobile').forEach(btn => { btn.dataset.tab === tabId ? (btn.classList.remove('opacity-50'), btn.classList.add('opacity-100', 'scale-110')) : (btn.classList.add('opacity-50'), btn.classList.remove('opacity-100', 'scale-110')); });
         };
 
-        // Settings Logic
         document.getElementById('form-add-capster').addEventListener('submit', async (e) => { e.preventDefault(); await addDoc(collection(db, `${dbPrefix}/capsters`), { name: document.getElementById('input-capster').value }); document.getElementById('input-capster').value = ''; });
         document.getElementById('form-add-service').addEventListener('submit', async (e) => { e.preventDefault(); await addDoc(collection(db, `${dbPrefix}/services`), { name: document.getElementById('input-service-name').value, price: parseInt(document.getElementById('input-service-price').value) }); document.getElementById('input-service-name').value = ''; document.getElementById('input-service-price').value = ''; });
         document.getElementById('form-add-product').addEventListener('submit', async (e) => { e.preventDefault(); await addDoc(collection(db, `${dbPrefix}/products`), { name: document.getElementById('input-product-name').value, price: parseInt(document.getElementById('input-product-price').value) }); document.getElementById('input-product-name').value = ''; document.getElementById('input-product-price').value = ''; });
@@ -644,19 +655,11 @@
             document.getElementById('list-services').innerHTML = services.map(s => `<li class="flex justify-between items-center bg-gray-50 px-3 py-2 rounded-lg border border-gray-100"><div class="min-w-0 mr-2"><span class="font-bold text-sm block truncate">${s.name}</span><span class="text-xs text-gray-500 truncate">${formatRp(s.price)}</span></div><button onclick="window.deleteItem('service', '${s.id}')" class="text-red-500 hover:text-red-700 flex-shrink-0"><i class="fa-solid fa-trash"></i></button></li>`).join('');
             document.getElementById('list-products').innerHTML = products.map(p => `<li class="flex justify-between items-center bg-gray-50 px-3 py-2 rounded-lg border border-gray-100"><div class="min-w-0 mr-2"><span class="font-bold text-sm block truncate">${p.name}</span><span class="text-xs text-gray-500 truncate">${formatRp(p.price)}</span></div><button onclick="window.deleteItem('product', '${p.id}')" class="text-red-500 hover:text-red-700 flex-shrink-0"><i class="fa-solid fa-trash"></i></button></li>`).join('');
         };
-        window.deleteItem = async (type, id) => { 
-            if(type === 'capster') await deleteDoc(doc(db, `${dbPrefix}/capsters`, id)); 
-            if(type === 'service') await deleteDoc(doc(db, `${dbPrefix}/services`, id)); 
-            if(type === 'product') await deleteDoc(doc(db, `${dbPrefix}/products`, id)); 
-            if(type === 'ewallet') await deletePaymentConfig('ewallets', id); 
-            if(type === 'bank') await deletePaymentConfig('banks', id); 
-            if(type === 'expense') await deleteDoc(doc(db, `${dbPrefix}/expenses`, id)); 
-        };
+        window.deleteItem = async (type, id) => { if(type === 'capster') await deleteDoc(doc(db, `${dbPrefix}/capsters`, id)); if(type === 'service') await deleteDoc(doc(db, `${dbPrefix}/services`, id)); if(type === 'product') await deleteDoc(doc(db, `${dbPrefix}/products`, id)); if(type === 'ewallet') await deletePaymentConfig('ewallets', id); if(type === 'bank') await deletePaymentConfig('banks', id); if(type === 'expense') await deleteDoc(doc(db, `${dbPrefix}/expenses`, id)); };
 
         document.getElementById('btn-reset-monthly').addEventListener('click', async () => {
             if(!confirm("PERINGATAN! Data Transaksi, Pengeluaran, dan Log dari BULAN LALU akan dihapus permanen. Lanjutkan?")) return;
-            const currentMonthStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1).getTime();
-            const batch = writeBatch(db); let count = 0;
+            const currentMonthStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1).getTime(); const batch = writeBatch(db); let count = 0;
             try {
                 const txSnap = await getDocs(collection(db, `${dbPrefix}/transactions`)); txSnap.forEach(d => { if(d.data().timestamp < currentMonthStart) { batch.delete(d.ref); count++; } });
                 const expSnap = await getDocs(collection(db, `${dbPrefix}/expenses`)); expSnap.forEach(d => { if(d.data().timestamp < currentMonthStart) { batch.delete(d.ref); count++; } });
@@ -665,7 +668,6 @@
             } catch(err) { showToast("Gagal menghapus: " + err.message); }
         });
 
-        // Payment Config
         const renderPaymentSettings = () => {
             document.getElementById('preview-qris').src = paymentConfig.qrisImage || 'https://via.placeholder.com/200?text=No+QRIS';
             document.getElementById('list-ewallets').innerHTML = (paymentConfig.ewallets || []).map(e => `<li class="flex justify-between items-center bg-gray-50 px-3 py-2 rounded-lg border border-gray-100"><div class="min-w-0 mr-2"><span class="font-bold text-sm block truncate">${e.provider}</span><span class="text-xs text-gray-500 truncate">${e.number} a/n ${e.name}</span></div><button onclick="window.deleteItem('ewallet', '${e.id}')" class="text-red-500 hover:text-red-700 flex-shrink-0"><i class="fa-solid fa-trash"></i></button></li>`).join('');
@@ -677,68 +679,45 @@
         document.getElementById('form-add-bank').addEventListener('submit', async (e) => { e.preventDefault(); const newBank = { id: Math.random().toString(36).substr(2, 9), provider: document.getElementById('input-bank-provider').value, number: document.getElementById('input-bank-number').value, name: document.getElementById('input-bank-name').value }; const currentList = paymentConfig.banks || []; currentList.push(newBank); await setDoc(doc(db, `${dbPrefix}/store_settings/payment`), { banks: currentList }, { merge: true }); document.getElementById('form-add-bank').reset(); });
         const deletePaymentConfig = async (type, id) => { if(type === 'ewallets') { await setDoc(doc(db, `${dbPrefix}/store_settings/payment`), { ewallets: (paymentConfig.ewallets || []).filter(e => e.id !== id) }, { merge: true }); } else if(type === 'banks') { await setDoc(doc(db, `${dbPrefix}/store_settings/payment`), { banks: (paymentConfig.banks || []).filter(b => b.id !== id) }, { merge: true }); } };
 
-        // Dropdowns
         const renderCapsterDropdowns = () => { const targets = ['kasir-capster', 'absen-nama']; targets.forEach(tid => { const el = document.getElementById(tid); if(!el) return; const current = el.value; el.innerHTML = `<option value="" disabled selected>-- Pilih Capster --</option>` + capsters.map(c => `<option value="${c.id}">${c.name}</option>`).join(''); if(current) el.value = current; }); };
         const renderServiceDropdowns = () => { const el = document.getElementById('kasir-layanan'); const current = el.value; el.innerHTML = `<option value="" disabled selected>-- Pilih Layanan --</option>` + services.map(s => `<option value="${s.id}" data-price="${s.price}">${s.name}</option>`).join(''); if(current) el.value = current; };
         const renderProductDropdowns = () => { const el = document.getElementById('kasir-produk'); const current = el.value; el.innerHTML = `<option value="">Tidak ada</option>` + products.map(p => `<option value="${p.id}" data-price="${p.price}">${p.name}</option>`).join(''); if(current) el.value = current; };
 
-        // Kasir
         document.querySelectorAll('.pay-method-btn').forEach(btn => { btn.addEventListener('click', (e) => { document.querySelectorAll('.pay-method-btn').forEach(b => { b.classList.remove('bg-black', 'text-white', 'border-black'); b.classList.add('bg-white', 'text-gray-500', 'border-gray-200'); }); e.target.classList.remove('bg-white', 'text-gray-500', 'border-gray-200'); e.target.classList.add('bg-black', 'text-white', 'border-black'); document.getElementById('kasir-metode').value = e.target.dataset.val; }); });
         const updateTotal = () => { const serviceId = document.getElementById('kasir-layanan').value; const productId = document.getElementById('kasir-produk').value; let total = 0; if(serviceId) { const s = services.find(x => x.id === serviceId); if(s) total += s.price; } if(productId) { const p = products.find(x => x.id === productId); if(p) total += p.price; } document.getElementById('kasir-total-display').innerText = formatRp(total); return total; };
         document.getElementById('kasir-layanan').addEventListener('change', updateTotal); document.getElementById('kasir-produk').addEventListener('change', updateTotal);
         
         const updateAutoQueue = () => {
-            const todayStart = new Date(); todayStart.setHours(0,0,0,0);
-            const todayTx = transactions.filter(t => t.timestamp >= todayStart.getTime());
-            let nextNum = 1, maxNum = 0;
-            todayTx.forEach(t => { if(t.antrian) { const match = t.antrian.match(/\d+/); if(match) { const n = parseInt(match[0]); if(n > maxNum) maxNum = n; } } });
-            nextNum = maxNum + 1;
+            const todayStart = new Date(); todayStart.setHours(0,0,0,0); const todayTx = transactions.filter(t => t.timestamp >= todayStart.getTime()); let nextNum = 1, maxNum = 0;
+            todayTx.forEach(t => { if(t.antrian) { const match = t.antrian.match(/\d+/); if(match) { const n = parseInt(match[0]); if(n > maxNum) maxNum = n; } } }); nextNum = maxNum + 1;
             document.getElementById('kasir-antrian').value = 'A' + String(nextNum).padStart(2, '0');
         };
 
         document.getElementById('form-kasir').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const capster = capsters.find(c => c.id === document.getElementById('kasir-capster').value);
-            const service = services.find(s => s.id === document.getElementById('kasir-layanan').value);
-            const product = products.find(p => p.id === document.getElementById('kasir-produk').value);
+            e.preventDefault(); const capster = capsters.find(c => c.id === document.getElementById('kasir-capster').value); const service = services.find(s => s.id === document.getElementById('kasir-layanan').value); const product = products.find(p => p.id === document.getElementById('kasir-produk').value);
             const txData = { antrian: document.getElementById('kasir-antrian').value, nama: document.getElementById('kasir-nama').value, telepon: document.getElementById('kasir-telepon').value || '-', capsterName: capster.name, serviceName: service.name, servicePrice: service.price, productName: product ? product.name : null, productPrice: product ? product.price : 0, metode: document.getElementById('kasir-metode').value, total: updateTotal(), status: 'Belum Lunas', terima: 0, kembali: 0, timestamp: Date.now() };
             const btn = document.getElementById('btn-submit-kasir'); const orig = btn.innerHTML; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>'; btn.disabled = true;
             try { await addDoc(collection(db, `${dbPrefix}/transactions`), txData); document.getElementById('form-kasir').reset(); updateTotal(); switchTab('pembayaran'); } catch(err) { showToast("Error: " + err.message); } finally { btn.innerHTML = orig; btn.disabled = false; updateAutoQueue(); }
         });
 
-        // Pengeluaran with Date
         document.getElementById('form-pengeluaran').addEventListener('submit', async (e) => { e.preventDefault(); await addDoc(collection(db, `${dbPrefix}/expenses`), { desc: document.getElementById('expense-desc').value, amount: parseInt(document.getElementById('expense-amount').value), timestamp: Date.now() }); document.getElementById('expense-desc').value = ''; document.getElementById('expense-amount').value = ''; });
         const renderExpenses = () => {
-            const todayStart = new Date(); todayStart.setHours(0,0,0,0);
-            const todayExp = expenses.filter(e => e.timestamp >= todayStart.getTime());
-            document.getElementById('expense-list').innerHTML = todayExp.length === 0 ? '<p class="text-gray-400 text-center py-4 text-sm bg-white rounded-2xl shadow-sm">Belum ada pengeluaran hari ini.</p>' : todayExp.map(e => {
-                const dateStr = new Date(e.timestamp).toLocaleDateString('id-ID', { weekday: 'long', day: '2-digit', month: 'short' });
-                const timeStr = new Date(e.timestamp).toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'});
-                return `<div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center">
-                    <div><h4 class="font-bold text-sm">${e.desc}</h4><p class="text-xs text-gray-400">${dateStr}, ${timeStr}</p></div>
-                    <div class="flex items-center gap-3"><span class="font-extrabold text-red-500">- ${formatRp(e.amount)}</span><button onclick="window.deleteItem('expense', '${e.id}')" class="text-gray-300 hover:text-red-500 transition p-1"><i class="fa-solid fa-trash text-xs"></i></button></div>
-                </div>`;
-            }).join('');
+            const todayStart = new Date(); todayStart.setHours(0,0,0,0); const todayExp = expenses.filter(e => e.timestamp >= todayStart.getTime());
+            document.getElementById('expense-list').innerHTML = todayExp.length === 0 ? '<p class="text-gray-400 text-center py-4 text-sm bg-white rounded-2xl shadow-sm">Belum ada pengeluaran hari ini.</p>' : todayExp.map(e => { const dateStr = new Date(e.timestamp).toLocaleDateString('id-ID', { weekday: 'long', day: '2-digit', month: 'short' }); const timeStr = new Date(e.timestamp).toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'}); return `<div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center"><div><h4 class="font-bold text-sm">${e.desc}</h4><p class="text-xs text-gray-400">${dateStr}, ${timeStr}</p></div><div class="flex items-center gap-3"><span class="font-extrabold text-red-500">- ${formatRp(e.amount)}</span><button onclick="window.deleteItem('expense', '${e.id}')" class="text-gray-300 hover:text-red-500 transition p-1"><i class="fa-solid fa-trash text-xs"></i></button></div></div>`; }).join('');
         };
 
-        // Pembayaran
         const sheetOverlay = document.getElementById('payment-sheet-overlay'), sheet = document.getElementById('payment-sheet');
         document.getElementById('search-payment').addEventListener('input', (e) => { searchPaymentQuery = e.target.value.toLowerCase(); renderPaymentList(); });
         document.querySelectorAll('.filter-btn').forEach(btn => { btn.addEventListener('click', (e) => { document.querySelectorAll('.filter-btn').forEach(b => { b.className = "filter-btn px-6 py-2.5 rounded-full bg-white text-gray-500 font-bold text-sm whitespace-nowrap shadow-sm border border-gray-200"; }); e.target.className = "filter-btn px-6 py-2.5 rounded-full bg-black text-white font-bold text-sm whitespace-nowrap shadow-lg"; selectedPaymentFilter = e.target.dataset.filter; renderPaymentList(); }); });
         window.cancelOrder = async (id) => { if(confirm("Yakin batalkan pesanan?")) { await updateDoc(doc(db, `${dbPrefix}/transactions`, id), { status: 'Dibatalkan', metode: 'Void' }); } };
 
         const renderPaymentList = () => {
-            const list = document.getElementById('payment-list'); list.innerHTML = '';
-            let filtered = transactions;
-            if (selectedPaymentFilter === 'belum') filtered = transactions.filter(t => t.status === 'Belum Lunas');
-            if (selectedPaymentFilter === 'lunas') filtered = transactions.filter(t => t.status === 'Lunas');
-            if (selectedPaymentFilter === 'batal') filtered = transactions.filter(t => t.status === 'Dibatalkan');
-            if (selectedPaymentFilter === 'all') filtered = transactions.filter(t => t.status !== 'Dibatalkan');
+            const list = document.getElementById('payment-list'); list.innerHTML = ''; let filtered = transactions;
+            if (selectedPaymentFilter === 'belum') filtered = transactions.filter(t => t.status === 'Belum Lunas'); if (selectedPaymentFilter === 'lunas') filtered = transactions.filter(t => t.status === 'Lunas'); if (selectedPaymentFilter === 'batal') filtered = transactions.filter(t => t.status === 'Dibatalkan'); if (selectedPaymentFilter === 'all') filtered = transactions.filter(t => t.status !== 'Dibatalkan');
             if (searchPaymentQuery) { filtered = filtered.filter(t => t.nama.toLowerCase().includes(searchPaymentQuery) || t.antrian.toLowerCase().includes(searchPaymentQuery)); }
             if(filtered.length === 0) { list.innerHTML = `<div class="col-span-full text-center py-10 opacity-50">Tidak ada transaksi.</div>`; return; }
             filtered.forEach(tx => {
-                const isLunas = tx.status === 'Lunas', isBatal = tx.status === 'Dibatalkan'; const div = document.createElement('div');
-                div.className = "bg-white p-5 rounded-3xl shadow-sm border border-gray-100 flex flex-col relative transition active:scale-95";
+                const isLunas = tx.status === 'Lunas', isBatal = tx.status === 'Dibatalkan'; const div = document.createElement('div'); div.className = "bg-white p-5 rounded-3xl shadow-sm border border-gray-100 flex flex-col relative transition active:scale-95";
                 if (!isLunas && !isBatal) { div.classList.add('cursor-pointer', 'hover:shadow-md'); div.onclick = () => openPaymentSheet(tx); }
                 let statusBadge = isLunas ? `<span class="px-3 py-1 rounded-lg text-xs font-bold bg-green-100 text-green-700">Lunas</span>` : (isBatal ? `<span class="px-3 py-1 rounded-lg text-xs font-bold bg-gray-200 text-gray-500">Batal</span>` : `<span class="px-3 py-1 rounded-lg text-xs font-bold bg-red-100 text-red-600">Belum Lunas</span>`);
                 let actionBtn = (!isLunas && !isBatal) ? `<button onclick="event.stopPropagation(); window.cancelOrder('${tx.id}')" class="text-gray-300 hover:text-red-500 transition p-2"><i class="fa-solid fa-ban"></i></button>` : '';
@@ -749,14 +728,12 @@
 
         const openPaymentSheet = (tx) => {
             currentTxId = tx.id; currentTempMethod = tx.metode;
-            document.getElementById('ps-customer').innerText = tx.nama; document.getElementById('ps-antrian').innerText = tx.antrian; document.getElementById('ps-capster-display').innerText = tx.capsterName; document.getElementById('ps-layanan').innerText = tx.serviceName; document.getElementById('ps-produk').innerText = tx.productName ? tx.productName : '-'; document.getElementById('ps-total').innerText = formatRp(tx.total);
+            document.getElementById('ps-customer').innerText = tx.nama; document.getElementById('ps-phone').value = tx.telepon === '-' ? '' : (tx.telepon || ''); document.getElementById('ps-antrian').innerText = tx.antrian; document.getElementById('ps-capster-display').innerText = tx.capsterName; document.getElementById('ps-layanan').innerText = tx.serviceName; document.getElementById('ps-produk').innerText = tx.productName ? tx.productName : '-'; document.getElementById('ps-total').innerText = formatRp(tx.total);
             const methods = ['Cash', 'QRIS', 'E-Wallet', 'Transfer']; const methodContainer = document.getElementById('ps-method-buttons');
             methodContainer.innerHTML = methods.map(m => `<button type="button" class="ps-pay-method-btn py-2 rounded-lg font-bold text-xs border transition-colors ${m === currentTempMethod ? 'bg-black text-white border-black' : 'bg-white text-gray-500 border-gray-200'}" data-val="${m}">${m}</button>`).join('');
             methodContainer.querySelectorAll('.ps-pay-method-btn').forEach(btn => { btn.addEventListener('click', (e) => { methodContainer.querySelectorAll('.ps-pay-method-btn').forEach(b => { b.className = "ps-pay-method-btn py-2 rounded-lg font-bold text-xs border transition-colors bg-white text-gray-500 border-gray-200"; }); e.target.className = "ps-pay-method-btn py-2 rounded-lg font-bold text-xs border transition-colors bg-black text-white border-black"; currentTempMethod = e.target.dataset.val; updateSheetUI(currentTempMethod, tx.total); }); });
-            const btnSelesai = document.getElementById('btn-ps-selesai');
-            updateSheetUI(currentTempMethod, tx.total);
-            btnSelesai.disabled = tx.status === 'Lunas'; btnSelesai.classList.toggle('opacity-50', tx.status === 'Lunas'); btnSelesai.innerText = tx.status === 'Lunas' ? "Sudah Lunas" : "Selesai"; 
-            methodContainer.classList.toggle('pointer-events-none', tx.status === 'Lunas');
+            const btnSelesai = document.getElementById('btn-ps-selesai'); updateSheetUI(currentTempMethod, tx.total);
+            btnSelesai.disabled = tx.status === 'Lunas'; btnSelesai.classList.toggle('opacity-50', tx.status === 'Lunas'); btnSelesai.innerText = tx.status === 'Lunas' ? "Sudah Lunas" : "Selesai"; methodContainer.classList.toggle('pointer-events-none', tx.status === 'Lunas'); document.getElementById('ps-phone').disabled = tx.status === 'Lunas';
             sheetOverlay.classList.remove('hidden'); sheetOverlay.classList.add('flex');
             requestAnimationFrame(() => { sheet.classList.remove('sheet-exit', 'sheet-exit-active'); sheet.classList.add('sheet-enter-active'); });
         };
@@ -770,197 +747,104 @@
         };
 
         const closePaymentSheet = () => { sheet.classList.remove('sheet-enter-active'); sheet.classList.add('sheet-exit-active'); setTimeout(() => { sheetOverlay.classList.add('hidden'); sheetOverlay.classList.remove('flex'); }, 300); currentTxId = null; };
-        document.getElementById('btn-ps-batal').addEventListener('click', closePaymentSheet);
-        sheetOverlay.addEventListener('click', (e) => { if(e.target === sheetOverlay) closePaymentSheet(); });
+        document.getElementById('btn-ps-batal').addEventListener('click', closePaymentSheet); sheetOverlay.addEventListener('click', (e) => { if(e.target === sheetOverlay) closePaymentSheet(); });
+        
         document.getElementById('btn-ps-selesai').addEventListener('click', async () => {
             if(!currentTxId) return; const tx = transactions.find(t => t.id === currentTxId); let terima = tx.total, kembali = 0;
             if(currentTempMethod === 'Cash') { terima = parseInt(document.getElementById('ps-uang-diterima').value) || 0; if(terima < tx.total) { showToast("Uang kurang!"); return; } kembali = terima - tx.total; }
-            await updateDoc(doc(db, `${dbPrefix}/transactions`, currentTxId), { status: 'Lunas', metode: currentTempMethod, terima, kembali }); showToast("Pembayaran Lunas!"); closePaymentSheet();
+            const phoneUpdate = document.getElementById('ps-phone').value.trim() || '-';
+            await updateDoc(doc(db, `${dbPrefix}/transactions`, currentTxId), { status: 'Lunas', metode: currentTempMethod, terima, kembali, telepon: phoneUpdate }); showToast("Pembayaran Lunas!"); closePaymentSheet();
         });
+
         document.getElementById('btn-ps-cetak').addEventListener('click', () => {
             if(!currentTxId) return; const tx = transactions.find(t => t.id === currentTxId);
-            document.getElementById('print-date').innerText = new Date(tx.timestamp).toLocaleString('id-ID'); document.getElementById('print-antrian').innerText = tx.antrian; document.getElementById('print-customer').innerText = tx.nama; document.getElementById('print-capster').innerText = tx.capsterName;
+            document.getElementById('print-date').innerText = new Date(tx.timestamp).toLocaleString('id-ID'); document.getElementById('print-antrian').innerText = tx.antrian; document.getElementById('print-customer').innerText = tx.nama; document.getElementById('print-phone').innerText = document.getElementById('ps-phone').value.trim() || '-'; document.getElementById('print-capster').innerText = tx.capsterName;
             document.getElementById('print-layanan-price').innerText = `${tx.serviceName} (${formatRp(tx.servicePrice)})`; document.getElementById('print-produk-price').innerText = tx.productName ? `${tx.productName} (${formatRp(tx.productPrice)})` : '-'; document.getElementById('print-total').innerText = formatRp(tx.total); document.getElementById('print-metode').innerText = tx.metode;
-            if(tx.metode === 'Cash') { document.getElementById('print-row-bayar').style.display = 'table-row'; document.getElementById('print-row-kembali').style.display = 'table-row'; document.getElementById('print-bayar').innerText = formatRp(tx.terima); document.getElementById('print-kembali').innerText = formatRp(tx.kembali); }
-            else { document.getElementById('print-row-bayar').style.display = 'none'; document.getElementById('print-row-kembali').style.display = 'none'; }
+            if(tx.metode === 'Cash') { document.getElementById('print-row-bayar').style.display = 'table-row'; document.getElementById('print-row-kembali').style.display = 'table-row'; document.getElementById('print-bayar').innerText = formatRp(tx.terima); document.getElementById('print-kembali').innerText = formatRp(tx.kembali); } else { document.getElementById('print-row-bayar').style.display = 'none'; document.getElementById('print-row-kembali').style.display = 'none'; }
             window.print();
         });
 
-        // Laporan & Calendar
+        // LAPORAN LOGIC
         window.showTopCapsterDetail = (capsterName) => {
-            const { start, end } = getReportRange();
-            const capsterTx = transactions.filter(t => t.status === 'Lunas' && t.capsterName === capsterName && t.timestamp >= start.getTime() && t.timestamp <= end.getTime());
+            const { start, end } = getReportRange(); const capsterTx = transactions.filter(t => t.status === 'Lunas' && t.capsterName === capsterName && t.timestamp >= start.getTime() && t.timestamp <= end.getTime());
             document.getElementById('detail-capster-avatar').innerText = capsterName.charAt(0).toUpperCase(); document.getElementById('detail-capster-name').innerText = capsterName; document.getElementById('detail-count').innerText = capsterTx.length; document.getElementById('detail-revenue').innerText = formatRp(capsterTx.reduce((sum, t) => sum + t.total, 0));
-            document.getElementById('detail-table-body').innerHTML = capsterTx.sort((a,b) => b.timestamp - a.timestamp).map(tx => `<tr class="hover:bg-gray-50 border-b border-gray-50"><td class="px-6 py-4 text-gray-500 text-xs">${new Date(tx.timestamp).toLocaleDateString('id-ID')}</td><td class="px-6 py-4 font-bold">${tx.nama}</td><td class="px-6 py-4 truncate">${tx.serviceName}</td><td class="px-6 py-4 font-bold">${formatRp(tx.total)}</td></tr>`).join('') || `<tr><td colspan="4" class="text-center py-6 text-gray-400">Belum ada transaksi.</td></tr>`;
-            switchTab('topcapster');
+            document.getElementById('detail-table-body').innerHTML = capsterTx.sort((a,b) => b.timestamp - a.timestamp).map(tx => `<tr class="hover:bg-gray-50 border-b border-gray-50"><td class="px-6 py-4 text-gray-500 text-xs">${new Date(tx.timestamp).toLocaleDateString('id-ID')}</td><td class="px-6 py-4 font-bold">${tx.nama}</td><td class="px-6 py-4 truncate">${tx.serviceName}</td><td class="px-6 py-4 font-bold">${formatRp(tx.total)}</td></tr>`).join('') || `<tr><td colspan="4" class="text-center py-6 text-gray-400">Belum ada transaksi.</td></tr>`; switchTab('topcapster');
         };
 
         const getReportRange = () => { 
-            if (selectedCalendarDateStr) {
-                const date = new Date(selectedCalendarDateStr);
-                const start = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0, 0);
-                const end = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59, 999);
-                return { start, end, subtitle: date.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) };
-            }
-
-            const year = parseInt(document.getElementById('report-year-select').value);
-            const month = parseInt(document.getElementById('report-month-select').value);
-            let start, end, subtitle;
-
-            if (month === 0) { // Semua Bulan (Per Tahun)
-                start = new Date(year, 0, 1, 0, 0, 0, 0);
-                end = new Date(year, 11, 31, 23, 59, 59, 999);
-                subtitle = `Tahun ${year}`;
-            } else { // Bulan Spesifik
-                start = new Date(year, month - 1, 1, 0, 0, 0, 0);
-                end = new Date(year, month, 0, 23, 59, 59, 999);
-                const monthName = new Date(year, month - 1, 1).toLocaleDateString('id-ID', { month: 'long' });
-                subtitle = `${monthName} ${year}`;
-            }
+            if (selectedCalendarDateStr) { const date = new Date(selectedCalendarDateStr); const start = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0, 0); const end = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59, 999); return { start, end, subtitle: date.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) }; }
+            const year = parseInt(document.getElementById('report-year-select').value); const month = parseInt(document.getElementById('report-month-select').value); let start, end, subtitle;
+            if (month === 0) { start = new Date(year, 0, 1, 0, 0, 0, 0); end = new Date(year, 11, 31, 23, 59, 59, 999); subtitle = `Tahun ${year}`; } else { start = new Date(year, month - 1, 1, 0, 0, 0, 0); end = new Date(year, month, 0, 23, 59, 59, 999); const monthName = new Date(year, month - 1, 1).toLocaleDateString('id-ID', { month: 'long' }); subtitle = `${monthName} ${year}`; }
             return { start, end, subtitle };
         };
         
-        window.selectCalendarDate = (dateStr) => {
-            selectedCalendarDateStr = dateStr; 
-            // Update dropdowns to reflect the calendar view
-            const d = new Date(dateStr);
-            document.getElementById('report-year-select').value = d.getFullYear();
-            document.getElementById('report-month-select').value = d.getMonth() + 1;
-            renderLaporan();
-        };
-
+        window.selectCalendarDate = (dateStr) => { selectedCalendarDateStr = dateStr; const d = new Date(dateStr); document.getElementById('report-year-select').value = d.getFullYear(); document.getElementById('report-month-select').value = d.getMonth() + 1; renderLaporan(); };
         document.getElementById('report-year-select').addEventListener('change', () => { selectedCalendarDateStr = null; renderLaporan(); });
         document.getElementById('report-month-select').addEventListener('change', () => { selectedCalendarDateStr = null; renderLaporan(); });
 
         const renderCalendar = () => {
-            const year = parseInt(document.getElementById('report-year-select').value);
-            const month = parseInt(document.getElementById('report-month-select').value);
-            const calendarContainer = document.getElementById('calendar-container');
-            const tbody = document.getElementById('calendar-days'); 
-            tbody.innerHTML = '';
-
-            if (month === 0) { // Hide calendar if "Semua Bulan" is selected
-                calendarContainer.classList.add('hidden');
-                return;
-            }
-            calendarContainer.classList.remove('hidden');
-
-            const firstDay = new Date(year, month - 1, 1).getDay(); 
-            const daysInMonth = new Date(year, month, 0).getDate();
-            const now = new Date();
-            const isCurrentMonth = now.getFullYear() === year && (now.getMonth() + 1) === month;
-            const today = isCurrentMonth ? now.getDate() : -1;
-            
+            const year = parseInt(document.getElementById('report-year-select').value); const month = parseInt(document.getElementById('report-month-select').value); const calendarContainer = document.getElementById('calendar-container'); const tbody = document.getElementById('calendar-days'); tbody.innerHTML = '';
+            if (month === 0) { calendarContainer.classList.add('hidden'); return; } calendarContainer.classList.remove('hidden');
+            const firstDay = new Date(year, month - 1, 1).getDay(); const daysInMonth = new Date(year, month, 0).getDate(); const now = new Date(); const isCurrentMonth = now.getFullYear() === year && (now.getMonth() + 1) === month; const today = isCurrentMonth ? now.getDate() : -1;
             for(let i=0; i<firstDay; i++) tbody.innerHTML += `<div></div>`;
-            
             for(let day=1; day<=daysInMonth; day++) {
-                const dateStr = `${year}-${String(month).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
-                const dayStart = new Date(year, month - 1, day).getTime(); const dayEnd = new Date(year, month - 1, day, 23, 59, 59).getTime();
-                const dayTx = transactions.filter(t => t.status === 'Lunas' && t.timestamp >= dayStart && t.timestamp <= dayEnd);
-                const dayExp = expenses.filter(e => e.timestamp >= dayStart && e.timestamp <= dayEnd);
-                const hasActivity = dayTx.length > 0 || dayExp.length > 0;
-                
-                const isSelected = dateStr === selectedCalendarDateStr;
-                const isToday = day === today;
-
-                let dayClass = "p-2 rounded-xl border cursor-pointer transition-all flex flex-col items-center justify-center min-h-[60px] hover:bg-gray-900 hover:text-white hover:border-gray-900 border-gray-100";
-                if (isSelected) dayClass += " bg-black text-white font-extrabold border-black shadow-[0_4px_10px_rgba(0,0,0,0.3)] scale-105 z-10";
-                else if (isToday) dayClass += " bg-gray-100 font-bold border-gray-300";
-
-                tbody.innerHTML += `<div onclick="window.selectCalendarDate('${dateStr}')" class="${dayClass}">
-                    <span class="text-sm font-bold">${day}</span>
-                    ${hasActivity ? `<div class="flex gap-0.5 mt-1">${dayTx.length > 0 ? '<div class="w-1.5 h-1.5 rounded-full bg-green-500"></div>' : ''}${dayExp.length > 0 ? '<div class="w-1.5 h-1.5 rounded-full bg-red-500"></div>' : ''}</div>` : ''}
-                </div>`;
+                const dateStr = `${year}-${String(month).padStart(2,'0')}-${String(day).padStart(2,'0')}`; const dayStart = new Date(year, month - 1, day).getTime(); const dayEnd = new Date(year, month - 1, day, 23, 59, 59).getTime();
+                const dayTx = transactions.filter(t => t.status === 'Lunas' && t.timestamp >= dayStart && t.timestamp <= dayEnd); const dayExp = expenses.filter(e => e.timestamp >= dayStart && e.timestamp <= dayEnd); const hasActivity = dayTx.length > 0 || dayExp.length > 0;
+                const isSelected = dateStr === selectedCalendarDateStr; const isToday = day === today; let dayClass = "p-2 rounded-xl border cursor-pointer transition-all flex flex-col items-center justify-center min-h-[60px] hover:bg-gray-900 hover:text-white hover:border-gray-900 border-gray-100";
+                if (isSelected) dayClass += " bg-black text-white font-extrabold border-black shadow-[0_4px_10px_rgba(0,0,0,0.3)] scale-105 z-10"; else if (isToday) dayClass += " bg-gray-100 font-bold border-gray-300";
+                tbody.innerHTML += `<div onclick="window.selectCalendarDate('${dateStr}')" class="${dayClass}"><span class="text-sm font-bold">${day}</span>${hasActivity ? `<div class="flex gap-0.5 mt-1">${dayTx.length > 0 ? '<div class="w-1.5 h-1.5 rounded-full bg-green-500"></div>' : ''}${dayExp.length > 0 ? '<div class="w-1.5 h-1.5 rounded-full bg-red-500"></div>' : ''}</div>` : ''}</div>`;
             }
         };
 
         const renderDailyChart = (filteredTx, filteredExp) => {
-            const ctx = document.getElementById('revenueChart').getContext('2d');
-            if (revenueChartInstance) revenueChartInstance.destroy();
-            const dailyData = {}; 
+            const ctx = document.getElementById('revenueChart').getContext('2d'); if (revenueChartInstance) revenueChartInstance.destroy(); const dailyData = {}; 
             filteredTx.forEach(t => { const dateKey = new Date(t.timestamp).toLocaleDateString('id-ID', { day: '2-digit', month: 'short' }); dailyData[dateKey] = { revenue: (dailyData[dateKey]?.revenue || 0) + t.total, expense: (dailyData[dateKey]?.expense || 0) }; });
             filteredExp.forEach(e => { const dateKey = new Date(e.timestamp).toLocaleDateString('id-ID', { day: '2-digit', month: 'short' }); dailyData[dateKey] = { revenue: (dailyData[dateKey]?.revenue || 0), expense: (dailyData[dateKey]?.expense || 0) + e.amount }; });
             const labels = Object.keys(dailyData);
-            revenueChartInstance = new Chart(ctx, {
-                type: 'bar', data: { labels, datasets: [
-                    { label: 'Pendapatan', data: labels.map(l => dailyData[l].revenue), backgroundColor: 'rgba(0,0,0,0.8)', borderRadius: 6 },
-                    { label: 'Pengeluaran', data: labels.map(l => dailyData[l].expense), backgroundColor: 'rgba(239,68,68,0.6)', borderRadius: 6 }
-                ]},
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8 } } }, scales: { y: { beginAtZero: true, ticks: { callback: (val) => 'Rp ' + (val/1000) + 'k' } }, x: { grid: { display: false } } } }
-            });
+            revenueChartInstance = new Chart(ctx, { type: 'bar', data: { labels, datasets: [{ label: 'Pendapatan', data: labels.map(l => dailyData[l].revenue), backgroundColor: 'rgba(0,0,0,0.8)', borderRadius: 6 }, { label: 'Pengeluaran', data: labels.map(l => dailyData[l].expense), backgroundColor: 'rgba(239,68,68,0.6)', borderRadius: 6 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8 } } }, scales: { y: { beginAtZero: true, ticks: { callback: (val) => 'Rp ' + (val/1000) + 'k' } }, x: { grid: { display: false } } } } });
         };
 
         const renderLaporan = () => {
-            const { start, end, subtitle } = getReportRange();
-            document.getElementById('lap-period-subtitle').innerText = subtitle;
-
+            const { start, end, subtitle } = getReportRange(); document.getElementById('lap-period-subtitle').innerText = subtitle;
             let totRev = 0, totCount = 0, totCash = 0, totQris = 0, totBank = 0, totExp = 0; let capsterStats = {}; const tbody = document.getElementById('laporan-table-body'); tbody.innerHTML = '';
             const filteredTx = transactions.filter(t => t.status === 'Lunas' && t.timestamp >= start.getTime() && t.timestamp <= end.getTime());
             const filteredExp = expenses.filter(e => e.timestamp >= start.getTime() && e.timestamp <= end.getTime());
-            
-            filteredExp.forEach(e => totExp += e.amount);
-            renderDailyChart(filteredTx, filteredExp);
-            renderCalendar(); 
-
+            filteredExp.forEach(e => totExp += e.amount); renderDailyChart(filteredTx, filteredExp); renderCalendar(); 
             filteredTx.forEach(tx => { totRev += tx.total; totCount++; if (!capsterStats[tx.capsterName]) capsterStats[tx.capsterName] = { count: 0, revenue: 0 }; capsterStats[tx.capsterName].count += 1; capsterStats[tx.capsterName].revenue += tx.total; if(tx.metode === 'Cash') totCash += tx.total; else if(tx.metode === 'QRIS') totQris += tx.total; else totBank += tx.total; tbody.innerHTML += `<tr class="hover:bg-gray-50 border-b border-gray-50"><td class="px-6 py-4 text-gray-500 text-xs">${new Date(tx.timestamp).toLocaleDateString('id-ID')}</td><td class="px-6 py-4 font-bold">${tx.antrian}</td><td class="px-6 py-4 text-blue-600">${tx.capsterName}</td><td class="px-6 py-4 truncate max-w-[120px]">${tx.nama}</td><td class="px-6 py-4 text-gray-600 truncate max-w-[120px]">${tx.serviceName}</td><td class="px-6 py-4 font-bold">${formatRp(tx.total)}</td><td class="px-6 py-4"><span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-md font-bold">Lunas</span></td></tr>`; });
-            
             document.getElementById('lap-total-revenue').innerText = formatRp(totRev); document.getElementById('lap-total-expense').innerText = formatRp(totExp); document.getElementById('lap-net-profit').innerText = formatRp(totRev - totExp); document.getElementById('lap-count-tx').innerText = totCount; 
             document.getElementById('lap-total-cash').innerText = formatRp(totCash); document.getElementById('lap-total-qris').innerText = formatRp(totQris); document.getElementById('lap-total-bank').innerText = formatRp(totBank);
-            
             let topCapName = "-", topCapScore = 0; for(let c in capsterStats) { if(capsterStats[c].count > topCapScore) { topCapScore = capsterStats[c].count; topCapName = c; } } document.getElementById('lap-top-capster').innerText = topCapName; document.getElementById('card-top-capster').onclick = () => { if(topCapName !== '-') showTopCapsterDetail(topCapName); };
-            
             const capsterGrid = document.getElementById('capster-performance-grid'); capsterGrid.innerHTML = Object.keys(capsterStats).sort((a, b) => capsterStats[b].revenue - capsterStats[a].revenue).map(name => `<div class="bg-white p-5 rounded-3xl shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-gray-50 transition-colors" onclick="window.showTopCapsterDetail('${name}')"><div class="w-12 h-12 rounded-full bg-black text-white flex items-center justify-center font-bold text-lg mb-2">${name.charAt(0)}</div><h4 class="font-extrabold text-black">${name}</h4><p class="text-xs text-gray-400 mt-1">${capsterStats[name].count} Customer</p><p class="font-bold text-green-600 mt-1 text-sm">${formatRp(capsterStats[name].revenue)}</p></div>`).join('') || '<div class="col-span-full text-center text-sm text-gray-400 py-4 bg-white rounded-3xl shadow-sm border border-gray-100">Belum ada data capster.</div>';
+            
+            // RENDER EXPENSE DETAIL TABLE (NEW)
+            const expTbody = document.getElementById('expense-table-body'); expTbody.innerHTML = '';
+            if(filteredExp.length === 0) { expTbody.innerHTML = `<tr><td colspan="3" class="text-center py-6 text-gray-400">Tidak ada pengeluaran pada periode ini.</td></tr>`; }
+            else { filteredExp.forEach(exp => { const dateStr = new Date(exp.timestamp).toLocaleDateString('id-ID', { weekday: 'short', day: '2-digit', month: 'short', year: '2-digit' }); expTbody.innerHTML += `<tr class="hover:bg-red-50 border-b border-gray-50"><td class="px-6 py-4 text-gray-500 text-xs">${dateStr}</td><td class="px-6 py-4 font-bold text-red-600">${exp.desc}</td><td class="px-6 py-4 font-bold text-red-500">${formatRp(exp.amount)}</td></tr>`; }); }
         };
 
-        // CSV Download with Expenses & Customer Count
         document.getElementById('btn-download-laporan').addEventListener('click', () => {
             const { start, end, subtitle } = getReportRange(); 
-            let csv = `Laporan ${subtitle}\nTanggal,Antrian,Nama,Capster,Layanan,Total,Metode\n`; let sumCash = 0, sumQris = 0, sumBank = 0, grandTotal = 0, totalExpense = 0, totalCustomer = 0;
-            transactions.filter(t => t.status === 'Lunas' && t.timestamp >= start.getTime() && t.timestamp <= end.getTime()).forEach(t => { 
-                csv += `${new Date(t.timestamp).toLocaleDateString('id-ID')},${t.antrian},${t.nama},${t.capsterName},${t.serviceName},${t.total},${t.metode}\n`; 
-                grandTotal += t.total; totalCustomer++; if(t.metode === 'Cash') sumCash += t.total; else if(t.metode === 'QRIS') sumQris += t.total; else sumBank += t.total; 
-            });
-            expenses.filter(e => e.timestamp >= start.getTime() && e.timestamp <= end.getTime()).forEach(e => totalExpense += e.amount);
+            let csv = `Laporan ${subtitle}\n\nRIWAYAT TRANSAKSI\nTanggal,Antrian,Nama,Capster,Layanan,Total,Metode\n`; let sumCash = 0, sumQris = 0, sumBank = 0, grandTotal = 0, totalExpense = 0, totalCustomer = 0;
+            transactions.filter(t => t.status === 'Lunas' && t.timestamp >= start.getTime() && t.timestamp <= end.getTime()).forEach(t => { csv += `${new Date(t.timestamp).toLocaleDateString('id-ID')},${t.antrian},${t.nama},${t.capsterName},${t.serviceName},${t.total},${t.metode}\n`; grandTotal += t.total; totalCustomer++; if(t.metode === 'Cash') sumCash += t.total; else if(t.metode === 'QRIS') sumQris += t.total; else sumBank += t.total; });
+            
+            // NEW: Add Expense Details to CSV
+            let csvExp = "\nRINCIAN PENGELUARAN\nTanggal,Keterangan (Untuk Apa),Nominal\n";
+            expenses.filter(e => e.timestamp >= start.getTime() && e.timestamp <= end.getTime()).forEach(e => { csvExp += `${new Date(e.timestamp).toLocaleDateString('id-ID')},${e.desc},${e.amount}\n`; totalExpense += e.amount; });
+            csv += csvExp;
             
             csv += `\nRINGKASAN KEUANGAN\nTotal Pendapatan,${grandTotal}\nTotal Pengeluaran,${totalExpense}\nLaba Bersih,${grandTotal - totalExpense}\nTotal Customer (Transaksi),${totalCustomer}\n\nRINCIAN PENDAPATAN\nTotal Cash,${sumCash}\nTotal QRIS,${sumQris}\nTotal Bank/E-Wallet,${sumBank}\n`;
-            
             const blob = new Blob([csv], { type: 'text/csv' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `Laporan_Barberman_${subtitle.replace(/\s+/g, '_')}.csv`; a.click();
         });
 
-        // Absensi
         const renderAbsensi = () => { 
             const isOpen = localStorage.getItem('store_open') === 'true'; updateStoreUI(isOpen); 
             const logContainer = document.getElementById('log-absensi'); const todayStart = new Date(); todayStart.setHours(0,0,0,0); const todayLogs = logs.filter(l => l.timestamp >= todayStart.getTime()); 
-            if(todayLogs.length === 0) { logContainer.innerHTML = '<p class="text-gray-400 text-center py-4 text-sm">Belum ada log hari ini.</p>'; } else { 
-                logContainer.innerHTML = todayLogs.map(l => {
-                    const isIn = l.type === 'OPEN' || l.type === 'IN';
-                    const color = isIn ? 'bg-green-500' : 'bg-red-500';
-                    const textColor = isIn ? 'text-green-700' : 'text-red-700';
-                    const bgLight = isIn ? 'bg-green-50' : 'bg-red-50';
-                    return `<div class="flex items-center gap-4 p-3 ${bgLight} rounded-xl border ${isIn ? 'border-green-100' : 'border-red-100'} shadow-sm">
-                        <div class="w-3 h-3 rounded-full ${color} flex-shrink-0"></div>
-                        <div class="flex-1 min-w-0">
-                            <span class="font-bold text-sm ${textColor} block truncate">${l.msg}</span>
-                            <span class="text-xs text-gray-500">${new Date(l.timestamp).toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'})}</span>
-                        </div>
-                        <i class="fa-solid ${isIn ? 'fa-arrow-right-to-bracket text-green-500' : 'fa-arrow-right-from-bracket text-red-500'}"></i>
-                    </div>`;
-                }).join(''); 
-            } 
+            if(todayLogs.length === 0) { logContainer.innerHTML = '<p class="text-gray-400 text-center py-4 text-sm">Belum ada log hari ini.</p>'; } else { logContainer.innerHTML = todayLogs.map(l => { const isIn = l.type === 'OPEN' || l.type === 'IN'; const color = isIn ? 'bg-green-500' : 'bg-red-500'; const textColor = isIn ? 'text-green-700' : 'text-red-700'; const bgLight = isIn ? 'bg-green-50' : 'bg-red-50'; return `<div class="flex items-center gap-4 p-3 ${bgLight} rounded-xl border ${isIn ? 'border-green-100' : 'border-red-100'} shadow-sm"><div class="w-3 h-3 rounded-full ${color} flex-shrink-0"></div><div class="flex-1 min-w-0"><span class="font-bold text-sm ${textColor} block truncate">${l.msg}</span><span class="text-xs text-gray-500">${new Date(l.timestamp).toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'})}</span></div><i class="fa-solid ${isIn ? 'fa-arrow-right-to-bracket text-green-500' : 'fa-arrow-right-from-bracket text-red-500'}"></i></div>`; }).join(''); } 
         };
         const updateStoreUI = (isOpen) => { 
             const icon = document.getElementById('store-status-icon'), text = document.getElementById('store-status-text'), btnBuka = document.getElementById('btn-toko-buka'), btnTutup = document.getElementById('btn-toko-tutup'); 
-            if(isOpen) { 
-                icon.className = "w-24 h-24 rounded-full flex items-center justify-center mb-4 transition-all duration-300 shadow-inner bg-green-100 text-green-600"; icon.innerHTML = '<i class="fa-solid fa-store text-4xl"></i>';
-                text.innerText = "TOKO BUKA"; text.className = "text-2xl font-extrabold mb-1 uppercase tracking-wider text-green-600"; 
-                btnBuka.className = "flex-1 py-4 rounded-2xl font-extrabold transition shadow-sm active:scale-95 bg-gray-200 text-gray-500"; btnBuka.disabled = true; 
-                btnTutup.className = "flex-1 py-4 rounded-2xl font-extrabold transition shadow-sm active:scale-95 bg-red-600 text-white hover:bg-red-700"; btnTutup.disabled = false; 
-            } else { 
-                icon.className = "w-24 h-24 rounded-full flex items-center justify-center mb-4 transition-all duration-300 shadow-inner bg-red-100 text-red-600"; icon.innerHTML = '<i class="fa-solid fa-store-slash text-4xl"></i>';
-                text.innerText = "TOKO TUTUP"; text.className = "text-2xl font-extrabold mb-1 uppercase tracking-wider text-red-600"; 
-                btnBuka.className = "flex-1 py-4 rounded-2xl font-extrabold transition shadow-sm active:scale-95 bg-green-600 text-white hover:bg-green-700"; btnBuka.disabled = false; 
-                btnTutup.className = "flex-1 py-4 rounded-2xl font-extrabold transition shadow-sm active:scale-95 bg-gray-200 text-gray-500"; btnTutup.disabled = true; 
-            } 
+            if(isOpen) { icon.className = "w-24 h-24 rounded-full flex items-center justify-center mb-4 transition-all duration-300 shadow-inner bg-green-100 text-green-600"; icon.innerHTML = '<i class="fa-solid fa-store text-4xl"></i>'; text.innerText = "TOKO BUKA"; text.className = "text-2xl font-extrabold mb-1 uppercase tracking-wider text-green-600"; btnBuka.className = "flex-1 py-4 rounded-2xl font-extrabold transition shadow-sm active:scale-95 bg-gray-200 text-gray-500"; btnBuka.disabled = true; btnTutup.className = "flex-1 py-4 rounded-2xl font-extrabold transition shadow-sm active:scale-95 bg-red-600 text-white hover:bg-red-700"; btnTutup.disabled = false; } 
+            else { icon.className = "w-24 h-24 rounded-full flex items-center justify-center mb-4 transition-all duration-300 shadow-inner bg-red-100 text-red-600"; icon.innerHTML = '<i class="fa-solid fa-store-slash text-4xl"></i>'; text.innerText = "TOKO TUTUP"; text.className = "text-2xl font-extrabold mb-1 uppercase tracking-wider text-red-600"; btnBuka.className = "flex-1 py-4 rounded-2xl font-extrabold transition shadow-sm active:scale-95 bg-green-600 text-white hover:bg-green-700"; btnBuka.disabled = false; btnTutup.className = "flex-1 py-4 rounded-2xl font-extrabold transition shadow-sm active:scale-95 bg-gray-200 text-gray-500"; btnTutup.disabled = true; } 
         };
         const addLog = async (type, msg) => { await addDoc(collection(db, `${dbPrefix}/logs`), { type, msg, timestamp: Date.now() }); };
         document.getElementById('btn-toko-buka').addEventListener('click', async () => { localStorage.setItem('store_open', 'true'); updateStoreUI(true); await addLog('OPEN', 'Toko Dibuka'); });
