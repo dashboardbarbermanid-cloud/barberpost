@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Barberman.Id - Kasir Pintar Pro</title>
+    <title>Barberman.Id - Kasir Pintar Pro Ultimate</title>
     
     <link rel="icon" type="image/png" href="https://i.ibb.co.com/001yB4w/BARBER-20260604-120614-0000.png">
     <link rel="apple-touch-icon" href="https://i.ibb.co.com/001yB4w/BARBER-20260604-120614-0000.png">
@@ -85,6 +85,46 @@
         </div>
     </div>
 
+    <!-- MODAL: SETTINGS SALARY (NEW) -->
+    <div id="modal-salary-settings" class="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl relative animate-in zoom-in-95 duration-200">
+            <button onclick="document.getElementById('modal-salary-settings').classList.add('hidden')" class="absolute top-4 right-4 text-gray-400 hover:text-black"><i class="fa-solid fa-xmark text-xl"></i></button>
+            <h3 class="text-xl font-extrabold mb-4">Atur Gaji: <span id="modal-capster-name" class="text-purple-600">...</span></h3>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Gaji Pokok Bulanan (Rp)</label>
+                    <div class="flex items-center gap-2">
+                        <span class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-bold">FIXED</span>
+                        <input type="number" id="edit-base-salary" class="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 font-bold focus:ring-2 focus:ring-black" placeholder="0">
+                    </div>
+                    <p class="text-xs text-gray-400 mt-1">Isi 0 jika sistem murni bagi hasil.</p>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Komisi Reguler (%)</label>
+                    <div class="flex items-center gap-2">
+                        <span class="bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs font-bold">BAGI HASIL</span>
+                        <input type="number" id="edit-comm-rate" class="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 font-bold focus:ring-2 focus:ring-black" placeholder="0" step="0.1">
+                    </div>
+                    <p class="text-xs text-gray-400 mt-1">Contoh: 10, 15, 20. (Berlaku untuk jam kerja normal).</p>
+                </div>
+
+                <div class="bg-gray-100 p-3 rounded-xl text-xs text-gray-500">
+                    <p><strong>Catatan:</strong></p>
+                    <ul class="list-disc list-inside mt-1">
+                        <li>Komisi Lembur (>22:15) otomatis <strong>40%</strong> dari layanan.</li>
+                        <li>Total Gaji = (Gaji Pokok) + (Komisi Reguler) + (Komisi Lembur) - (Kasbon).</li>
+                    </ul>
+                </div>
+            </div>
+
+            <button onclick="window.saveSalarySettings()" class="w-full mt-6 bg-black text-white py-3 rounded-xl font-bold hover:bg-gray-800 transition shadow-sm active:scale-95">
+                Simpan Pengaturan
+            </button>
+        </div>
+    </div>
+
     <!-- MAIN APP WRAPPER -->
     <div id="app-wrapper" class="flex min-h-screen hidden">
         
@@ -96,7 +136,7 @@
                 </div>
                 <div>
                     <h1 class="font-bold text-lg tracking-wide">Barberman.Id</h1>
-                    <p class="text-xs text-gray-500">POS System Pro v4.1</p>
+                    <p class="text-xs text-gray-500">POS System Ultimate</p>
                 </div>
             </div>
             <nav class="flex-1 space-y-1 overflow-y-auto" id="desktop-nav"></nav>
@@ -300,8 +340,7 @@
 
             <!-- VIEW: GAJI CAPSTER -->
             <section id="view-gaji" class="view-section hidden">
-                <h2 class="text-3xl font-extrabold mb-6 tracking-tight">Gaji & Komisi Lembur</h2>
-                <p class="text-gray-500 mb-6 text-sm">Sistem Komisi: <span class="font-bold text-purple-600">40% dari Layanan Lembur (Jam > 22:15)</span>. Kasbon dilunasi otomatis saat gaji diproses.</p>
+                <h2 class="text-3xl font-extrabold mb-6 tracking-tight">Gaji & Komisi Capster</h2>
                 
                 <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 mb-8">
                     <div class="flex flex-col md:flex-row gap-4 items-end">
@@ -327,46 +366,65 @@
                     </div>
                 </div>
 
-                <div id="gaji-result-container" class="hidden fade-in">
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                <div id="gaji-result-container" class="hidden fade-in space-y-6">
+                    <!-- COMPONENT 1: GAJI POKOK -->
+                    <div class="bg-green-50 p-6 rounded-3xl border border-green-100 shadow-sm flex justify-between items-center">
+                        <div>
+                            <p class="text-green-600 font-bold text-xs uppercase tracking-wider mb-1">Gaji Pokok (Bulanan)</p>
+                            <p class="text-xs text-green-500">Fix Income</p>
+                        </div>
+                        <h3 class="text-3xl font-black text-green-700" id="gaji-pokok">Rp 0</h3>
+                    </div>
+
+                    <!-- COMPONENT 2: KOMISI REGULER & LEMBUR -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Komisi Reguler -->
+                        <div class="bg-blue-50 p-6 rounded-3xl border border-blue-100 shadow-sm">
+                            <p class="text-blue-600 font-bold text-xs uppercase tracking-wider mb-1">Komisi Reguler (Normal)</p>
+                            <p class="text-xs text-blue-500 mb-2" id="gaji-reguler-rate-desc">Rate: -%</p>
+                            <div class="mb-2"><h4 class="text-xl font-extrabold text-blue-900" id="gaji-reguler-revenue">Rp 0</h4><p class="text-[10px] text-gray-500">Total Penjualan</p></div>
+                            <h3 class="text-2xl font-black text-blue-600" id="gaji-reguler-komisi">Rp 0</h3>
+                        </div>
+
                         <!-- Komisi Lembur -->
-                        <div class="bg-purple-50 p-6 rounded-3xl border border-purple-100 shadow-sm relative overflow-hidden">
-                            <div class="absolute -right-4 -top-4 text-purple-100 opacity-50"><i class="fa-solid fa-clock text-8xl"></i></div>
-                            <p class="text-purple-600 font-bold text-xs uppercase tracking-wider mb-1">Total Pendapatan Lembur</p>
-                            <h4 class="text-2xl font-extrabold text-purple-900" id="gaji-lembur-revenue">Rp 0</h4>
-                            <div class="mt-2 text-sm text-purple-600 bg-purple-100 inline-block px-2 py-1 rounded">Komisi 40%</div>
-                            <h3 class="text-3xl font-black text-purple-600 mt-2" id="gaji-komisi-total">Rp 0</h3>
-                        </div>
-
-                        <!-- Potongan Kasbon -->
-                        <div class="bg-red-50 p-6 rounded-3xl border border-red-100 shadow-sm relative overflow-hidden">
-                             <div class="absolute -right-4 -top-4 text-red-100 opacity-50"><i class="fa-solid fa-file-invoice-dollar text-8xl"></i></div>
-                             <p class="text-red-600 font-bold text-xs uppercase tracking-wider mb-1">Potongan Kasbon</p>
-                             <p class="text-xs text-red-400 mb-2">Total utang aktif hingga akhir periode</p>
-                             <h3 class="text-3xl font-black text-red-500" id="gaji-kasbon-total">- Rp 0</h3>
-                        </div>
-
-                        <!-- Gaji Bersih -->
-                        <div class="bg-black text-white p-6 rounded-3xl shadow-xl relative overflow-hidden">
-                             <div class="absolute -right-4 -top-4 text-white opacity-10"><i class="fa-solid fa-sack-dollar text-8xl"></i></div>
-                             <p class="text-gray-400 font-bold text-xs uppercase tracking-wider mb-1">Take Home Pay</p>
-                             <h3 class="text-4xl font-black text-green-400 mt-2" id="gaji-bersih">Rp 0</h3>
+                        <div class="bg-purple-50 p-6 rounded-3xl border border-purple-100 shadow-sm">
+                            <p class="text-purple-600 font-bold text-xs uppercase tracking-wider mb-1">Komisi Lembur (>22:15)</p>
+                            <p class="text-xs text-purple-500 mb-2">Rate: 40%</p>
+                            <div class="mb-2"><h4 class="text-xl font-extrabold text-purple-900" id="gaji-lembur-revenue">Rp 0</h4><p class="text-[10px] text-gray-500">Total Penjualan</p></div>
+                            <h3 class="text-2xl font-black text-purple-600" id="gaji-lembur-komisi">Rp 0</h3>
                         </div>
                     </div>
 
-                    <!-- PROCESS BUTTON -->
-                    <div class="bg-yellow-50 p-4 rounded-2xl border border-yellow-200 mb-8 flex flex-col md:flex-row items-center justify-between gap-4">
+                    <!-- DEDUCTIONS & FINAL -->
+                    <div class="bg-white border-2 border-gray-100 rounded-3xl p-6 shadow-sm relative overflow-hidden">
+                        <h3 class="font-bold text-sm uppercase text-gray-400 mb-4">Rincian Akhir</h3>
+                        <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                            <span class="text-gray-600">Total Pendapatan Kotor</span>
+                            <span class="font-bold text-black" id="gaji-total-kotor">Rp 0</span>
+                        </div>
+                        <div class="flex justify-between items-center py-2 border-b border-gray-100 text-red-500">
+                            <span class="text-red-500">Potongan Kasbon</span>
+                            <span class="font-bold text-red-500" id="gaji-kasbon-total">- Rp 0</span>
+                        </div>
+                        <div class="flex justify-between items-center py-4 bg-black text-white -mx-6 -mb-6 px-6 mt-4 rounded-b-3xl">
+                            <span class="text-white font-bold">TAKE HOME PAY</span>
+                            <span class="font-black text-2xl text-green-400" id="gaji-bersih">Rp 0</span>
+                        </div>
+                    </div>
+
+                    <!-- ACTION BUTTON -->
+                    <div class="bg-yellow-50 p-4 rounded-2xl border border-yellow-200 flex flex-col md:flex-row items-center justify-between gap-4">
                         <div>
-                            <h4 class="font-bold text-yellow-800">Siap Proses Gaji?</h4>
-                            <p class="text-xs text-yellow-700">Menekan tombol ini akan menghitung final pay dan menandai semua kasbon terkait sebagai LUNAS.</p>
+                            <h4 class="font-bold text-yellow-800">Konfirmasi Pembayaran Gaji</h4>
+                            <p class="text-xs text-yellow-700">Menekan tombol ini akan menandai semua kasbon terkait sebagai LUNAS.</p>
                         </div>
                         <button id="btn-proses-gaji" class="bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-3 rounded-xl font-bold shadow-sm active:scale-95 whitespace-nowrap flex items-center gap-2">
                             <i class="fa-solid fa-money-check-dollar"></i> Proses Gaji & Lunasi Kasbon
                         </button>
                     </div>
 
-                    <!-- KASBON DETAILS TO BE PAID -->
-                    <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden mb-8">
+                    <!-- KASBON DETAILS -->
+                    <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
                         <div class="p-4 border-b border-gray-100">
                             <h3 class="font-bold text-lg text-red-600">Daftar Kasbon yang Akan Dilunasi</h3>
                         </div>
@@ -375,13 +433,14 @@
                         </div>
                     </div>
 
+                    <!-- TABLE: TRANSAKSI -->
                     <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
                         <div class="p-6 border-b border-gray-100">
-                            <h3 class="font-bold text-lg">Rincian Transaksi Lembur (Lewat 22:15)</h3>
+                            <h3 class="font-bold text-lg">Rincian Transaksi</h3>
                         </div>
                         <div class="overflow-x-auto">
                             <table class="w-full text-left text-sm whitespace-nowrap">
-                                <thead class="bg-gray-50 text-gray-500"><tr><th class="px-6 py-4 font-bold uppercase">Waktu</th><th class="px-6 py-4 font-bold uppercase">Pelanggan</th><th class="px-6 py-4 font-bold uppercase">Layanan</th><th class="px-6 py-4 font-bold uppercase">Harga</th><th class="px-6 py-4 font-bold uppercase">Komisi (40%)</th></tr></thead>
+                                <thead class="bg-gray-50 text-gray-500"><tr><th class="px-6 py-4 font-bold uppercase">Waktu</th><th class="px-6 py-4 font-bold uppercase">Tipe</th><th class="px-6 py-4 font-bold uppercase">Pelanggan</th><th class="px-6 py-4 font-bold uppercase">Layanan</th><th class="px-6 py-4 font-bold uppercase">Komisi</th></tr></thead>
                                 <tbody id="gaji-table-body" class="divide-y divide-gray-50"></tbody>
                             </table>
                         </div>
@@ -614,7 +673,7 @@
                     </button>
                 </div>
                 <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden mb-6 fade-in">
-                    <div class="px-6 py-4 flex justify-between items-center border-b border-gray-50"><span class="font-semibold text-gray-600">Versi Aplikasi</span><span class="font-bold text-black">4.1.0 (Auto-Overtime)</span></div>
+                    <div class="px-6 py-4 flex justify-between items-center border-b border-gray-50"><span class="font-semibold text-gray-600">Versi Aplikasi</span><span class="font-bold text-black">5.0.0 (Full Salary)</span></div>
                     <div class="px-6 py-4 flex justify-between items-center"><span class="font-semibold text-gray-600">Developer</span><span class="font-bold text-black">Barberman.Id</span></div>
                 </div>
                 <button id="btn-logout-mobile-page" class="w-full py-4 bg-white border-2 border-red-200 text-red-600 rounded-2xl font-bold hover:bg-red-50 transition shadow-sm active:scale-95 flex items-center justify-center gap-2 mb-4">
@@ -728,6 +787,7 @@
         let currentTxId = null, currentTempMethod = "", selectedPaymentFilter = 'all', searchPaymentQuery = '';
         let paymentConfig = { qrisImage: '', ewallets: [], banks: [] }, revenueChartInstance = null;
         let selectedCalendarDateStr = null;
+        let currentEditingCapsterId = null; // For salary modal
         
         // For Gaji Processing
         let currentGajiDebts = []; 
@@ -764,11 +824,9 @@
 
         const setupFirestoreListeners = () => {
             onSnapshot(collection(db, `${dbPrefix}/capsters`), (snap) => { capsters = snap.docs.map(d => ({id: d.id, ...d.data()})); renderCapsterDropdowns(); renderSettingsLists(); });
-            // Listener for Staff
             onSnapshot(collection(db, `${dbPrefix}/staff`), (snap) => { staff = snap.docs.map(d => ({id: d.id, ...d.data()})); renderStaffDropdowns(); renderSettingsLists(); });
             onSnapshot(collection(db, `${dbPrefix}/services`), (snap) => { services = snap.docs.map(d => ({id: d.id, ...d.data()})); renderServiceDropdowns(); renderSettingsLists(); });
             onSnapshot(collection(db, `${dbPrefix}/products`), (snap) => { products = snap.docs.map(d => ({id: d.id, ...d.data()})); renderProductDropdowns(); renderSettingsLists(); });
-            // Listener for Kasbon
             onSnapshot(collection(db, `${dbPrefix}/kasbons`), (snap) => { 
                 kasbons = snap.docs.map(d => ({id: d.id, ...d.data()})); 
                 kasbons.sort((a,b) => b.timestamp - a.timestamp); 
@@ -819,19 +877,61 @@
             localStorage.setItem('last_active_tab', tabId); document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden')); const target = document.getElementById(`view-${tabId}`);
             if(target) { target.classList.remove('hidden'); target.classList.add('fade-in'); }
             if(tabId === 'kasir') updateAutoQueue();
-            if(tabId === 'gaji') { renderGajiDropdowns(); } // Refresh gaji dropdowns
+            if(tabId === 'gaji') { renderGajiDropdowns(); } 
             document.querySelectorAll('.nav-btn').forEach(btn => { btn.dataset.tab === tabId ? btn.className = "nav-btn w-full flex items-center gap-4 px-4 py-3 rounded-2xl transition-all duration-200 bg-white text-black font-bold shadow-md" : btn.className = "nav-btn w-full flex items-center gap-4 px-4 py-3 rounded-2xl transition-all duration-200 text-gray-400 hover:text-white hover:bg-gray-900 font-semibold"; });
             document.querySelectorAll('.nav-btn-mobile').forEach(btn => { btn.dataset.tab === tabId ? (btn.classList.remove('opacity-50'), btn.classList.add('opacity-100', 'scale-110')) : (btn.classList.add('opacity-50'), btn.classList.remove('opacity-100', 'scale-110')); });
         };
 
-        // --- SETTINGS LOGIC (STAFF) ---
-        document.getElementById('form-add-capster').addEventListener('submit', async (e) => { e.preventDefault(); await addDoc(collection(db, `${dbPrefix}/capsters`), { name: document.getElementById('input-capster').value }); document.getElementById('input-capster').value = ''; });
+        // --- SETTINGS LOGIC ---
+        document.getElementById('form-add-capster').addEventListener('submit', async (e) => { e.preventDefault(); await addDoc(collection(db, `${dbPrefix}/capsters`), { name: document.getElementById('input-capster').value, baseSalary: 0, commissionRate: 0 }); document.getElementById('input-capster').value = ''; });
         document.getElementById('form-add-staff').addEventListener('submit', async (e) => { e.preventDefault(); await addDoc(collection(db, `${dbPrefix}/staff`), { name: document.getElementById('input-staff').value }); document.getElementById('input-staff').value = ''; });
         document.getElementById('form-add-service').addEventListener('submit', async (e) => { e.preventDefault(); await addDoc(collection(db, `${dbPrefix}/services`), { name: document.getElementById('input-service-name').value, price: parseInt(document.getElementById('input-service-price').value) }); document.getElementById('input-service-name').value = ''; document.getElementById('input-service-price').value = ''; });
         document.getElementById('form-add-product').addEventListener('submit', async (e) => { e.preventDefault(); await addDoc(collection(db, `${dbPrefix}/products`), { name: document.getElementById('input-product-name').value, price: parseInt(document.getElementById('input-product-price').value) }); document.getElementById('input-product-name').value = ''; document.getElementById('input-product-price').value = ''; });
         
+        // OPEN SALARY MODAL
+        window.openSalaryModal = (id) => {
+            const capster = capsters.find(c => c.id === id);
+            if(!capster) return;
+            currentEditingCapsterId = id;
+            document.getElementById('modal-capster-name').innerText = capster.name;
+            document.getElementById('edit-base-salary').value = capster.baseSalary || 0;
+            document.getElementById('edit-comm-rate').value = (capster.commissionRate || 0) * 100; // Convert decimal to percent for UI
+            document.getElementById('modal-salary-settings').classList.remove('hidden');
+        }
+
+        // SAVE SALARY SETTINGS
+        window.saveSalarySettings = async () => {
+            if(!currentEditingCapsterId) return;
+            const baseSalary = parseInt(document.getElementById('edit-base-salary').value) || 0;
+            const commRate = (parseFloat(document.getElementById('edit-comm-rate').value) || 0) / 100; // Convert back to decimal
+            
+            await updateDoc(doc(db, `${dbPrefix}/capsters`, currentEditingCapsterId), {
+                baseSalary: baseSalary,
+                commissionRate: commRate
+            });
+            document.getElementById('modal-salary-settings').classList.add('hidden');
+            showToast("Pengaturan Gaji Disimpan!");
+        };
+
         const renderSettingsLists = () => {
-            document.getElementById('list-capsters').innerHTML = capsters.map(c => `<li class="flex justify-between items-center bg-gray-50 px-3 py-2 rounded-lg border border-gray-100"><span class="font-semibold text-sm truncate">${c.name}</span><button onclick="window.deleteItem('capster', '${c.id}')" class="text-red-500 hover:text-red-700 flex-shrink-0 ml-2"><i class="fa-solid fa-trash"></i></button></li>`).join('');
+            // Capster List with Edit Button
+            document.getElementById('list-capsters').innerHTML = capsters.map(c => {
+                const salaryType = (c.baseSalary || 0) > 0 && (c.commissionRate || 0) > 0 ? 'Mix' 
+                                : (c.baseSalary || 0) > 0 ? 'Bulanan' 
+                                : (c.commissionRate || 0) > 0 ? 'Komisi' : 'Belum Set';
+                return `
+                <li class="flex justify-between items-center bg-gray-50 px-3 py-2 rounded-lg border border-gray-100">
+                    <div class="min-w-0 mr-2">
+                        <span class="font-semibold text-sm block truncate">${c.name}</span>
+                        <span class="text-[10px] text-gray-400">${salaryType}</span>
+                    </div>
+                    <div class="flex items-center gap-2 flex-shrink-0">
+                        <button onclick="window.openSalaryModal('${c.id}')" class="text-blue-500 hover:text-blue-700 bg-blue-50 w-8 h-8 rounded-full flex items-center justify-center transition"><i class="fa-solid fa-money-bill-1-wave"></i></button>
+                        <button onclick="window.deleteItem('capster', '${c.id}')" class="text-red-500 hover:text-red-700 bg-red-50 w-8 h-8 rounded-full flex items-center justify-center transition"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                </li>`;
+            }).join('');
+            
             document.getElementById('list-staff').innerHTML = staff.map(s => `<li class="flex justify-between items-center bg-blue-50 px-3 py-2 rounded-lg border border-blue-100"><span class="font-semibold text-sm truncate">${s.name}</span><button onclick="window.deleteItem('staff', '${s.id}')" class="text-red-500 hover:text-red-700 flex-shrink-0 ml-2"><i class="fa-solid fa-trash"></i></button></li>`).join('');
             document.getElementById('list-services').innerHTML = services.map(s => `<li class="flex justify-between items-center bg-gray-50 px-3 py-2 rounded-lg border border-gray-100"><div class="min-w-0 mr-2"><span class="font-bold text-sm block truncate">${s.name}</span><span class="text-xs text-gray-500 truncate">${formatRp(s.price)}</span></div><button onclick="window.deleteItem('service', '${s.id}')" class="text-red-500 hover:text-red-700 flex-shrink-0"><i class="fa-solid fa-trash"></i></button></li>`).join('');
             document.getElementById('list-products').innerHTML = products.map(p => `<li class="flex justify-between items-center bg-gray-50 px-3 py-2 rounded-lg border border-gray-100"><div class="min-w-0 mr-2"><span class="font-bold text-sm block truncate">${p.name}</span><span class="text-xs text-gray-500 truncate">${formatRp(p.price)}</span></div><button onclick="window.deleteItem('product', '${p.id}')" class="text-red-500 hover:text-red-700 flex-shrink-0"><i class="fa-solid fa-trash"></i></button></li>`).join('');
@@ -912,7 +1012,6 @@
             document.getElementById('kasir-antrian').value = 'A' + String(nextNum).padStart(2, '0');
         };
 
-        // OVERTIME LOGIC (UPDATED)
         document.getElementById('form-kasir').addEventListener('submit', async (e) => {
             e.preventDefault(); 
             
@@ -942,7 +1041,7 @@
                 terima: 0, 
                 kembali: 0, 
                 timestamp: Date.now(),
-                isOvertime: isOvertime // AUTOMATED
+                isOvertime: isOvertime 
             };
             const btn = document.getElementById('btn-submit-kasir'); const orig = btn.innerHTML; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>'; btn.disabled = true;
             try { 
@@ -1082,7 +1181,7 @@
             window.print();
         });
 
-        // --- GAJI LOGIC (UPDATED FOR DATE 1) ---
+        // --- GAJI LOGIC (UPDATED FOR 2 TYPES) ---
         const renderGajiDropdowns = () => {
             const sel = document.getElementById('gaji-capster-select');
             if(!sel) return;
@@ -1102,66 +1201,99 @@
 
             if(!capsterId || !month || !year) return;
 
-            // Period End (End of selected month)
+            // Period End
             const start = new Date(year, month - 1, 1).getTime();
             const end = new Date(year, month, 0, 23, 59, 59).getTime();
 
-            // 1. Filter Transactions for this capster, this month, and isOvertime = true
-            const overtimeTx = transactions.filter(t => 
+            // Get Capster Data
+            const capster = capsters.find(c => c.id === capsterId);
+            const baseSalary = capster.baseSalary || 0;
+            const commRate = capster.commissionRate || 0; // Default 0
+
+            // Split Transactions: Regular vs Overtime
+            const allTx = transactions.filter(t => 
                 t.capsterId === capsterId && 
-                t.isOvertime && 
                 t.status === 'Lunas' && 
                 t.timestamp >= start && 
                 t.timestamp <= end
             );
 
-            // 2. Calculate Revenue & Commission (40%)
-            const totalLemburRevenue = overtimeTx.reduce((sum, t) => sum + t.servicePrice, 0);
-            const komisiLembur = totalLemburRevenue * 0.4; 
+            const regularTx = allTx.filter(t => !t.isOvertime);
+            const overtimeTx = allTx.filter(t => t.isOvertime);
 
-            // 3. Calculate Debt (Kasbon) for this capster that is STILL UNPAID and happened BEFORE or DURING the end of this month
-            // "Total setiap tanggal 1" -> We collect all debts up to the end of the month being viewed.
+            // 1. Gaji Pokok
+            const totalBaseSalary = baseSalary;
+
+            // 2. Komisi Reguler (Normal Hours)
+            const totalRegRev = regularTx.reduce((sum, t) => sum + t.servicePrice, 0);
+            const totalRegComm = totalRegRev * commRate;
+
+            // 3. Komisi Lembur (Overtime Hours)
+            const totalOtRev = overtimeTx.reduce((sum, t) => sum + t.servicePrice, 0);
+            const totalOtComm = totalOtRev * 0.40; // Fixed 40%
+
+            // 4. Debts
             currentGajiDebts = kasbons.filter(k => 
                 k.userId === capsterId && 
                 k.userType === 'capster' && 
                 k.status === 'Belum Lunas' &&
                 k.timestamp <= end
             );
-
             const totalKasbon = currentGajiDebts.reduce((sum, k) => sum + k.amount, 0);
 
-            // 4. Calculate Take Home Pay
-            const gajiBersih = komisiLembur - totalKasbon;
+            // 5. Final
+            const totalKotor = totalBaseSalary + totalRegComm + totalOtComm;
+            const gajiBersih = totalKotor - totalKasbon;
 
-            // 5. Update UI
+            // Update UI
             document.getElementById('gaji-result-container').classList.remove('hidden');
             document.getElementById('gaji-empty-state').classList.add('hidden');
 
-            document.getElementById('gaji-lembur-revenue').innerText = formatRp(totalLemburRevenue);
-            document.getElementById('gaji-komisi-total').innerText = formatRp(komisiLembur);
+            document.getElementById('gaji-pokok').innerText = formatRp(totalBaseSalary);
+            document.getElementById('gaji-reguler-rate-desc').innerText = `Rate: ${(commRate*100).toFixed(1)}%`;
+            document.getElementById('gaji-reguler-revenue').innerText = formatRp(totalRegRev);
+            document.getElementById('gaji-reguler-komisi').innerText = formatRp(totalRegComm);
+            document.getElementById('gaji-lembur-revenue').innerText = formatRp(totalOtRev);
+            document.getElementById('gaji-lembur-komisi').innerText = formatRp(totalOtComm);
+            document.getElementById('gaji-total-kotor').innerText = formatRp(totalKotor);
             document.getElementById('gaji-kasbon-total').innerText = `- ${formatRp(totalKasbon)}`;
             document.getElementById('gaji-bersih').innerText = formatRp(gajiBersih);
 
-            // Table: Overtime Details
+            // Table: All Transactions
             const tbody = document.getElementById('gaji-table-body');
-            tbody.innerHTML = overtimeTx.map(tx => {
-                const komisi = tx.servicePrice * 0.4;
+            tbody.innerHTML = allTx.map(tx => {
+                const isOt = tx.isOvertime;
+                let komisi = 0;
+                let label = "Normal";
+                let colorClass = "text-blue-600";
+                
+                if(isOt) {
+                    komisi = tx.servicePrice * 0.40;
+                    label = "Lembur (>22:15)";
+                    colorClass = "text-purple-600";
+                } else {
+                    komisi = tx.servicePrice * commRate;
+                    label = "Reguler";
+                    colorClass = "text-blue-600";
+                }
+                
                 const time = new Date(tx.timestamp);
                 const timeStr = time.getHours() + ':' + String(time.getMinutes()).padStart(2,'0');
+
                 return `<tr class="hover:bg-gray-50 border-b border-gray-50">
-                    <td class="px-6 py-4 text-gray-500 text-xs">${new Date(tx.timestamp).toLocaleDateString('id-ID')} <span class="text-purple-600">(${timeStr})</span></td>
+                    <td class="px-6 py-4 text-gray-500 text-xs">${new Date(tx.timestamp).toLocaleDateString('id-ID')} <span class="${colorClass}">(${timeStr})</span></td>
+                    <td class="px-6 py-4 font-bold text-xs">${label}</td>
                     <td class="px-6 py-4 font-bold">${tx.nama}</td>
                     <td class="px-6 py-4 truncate">${tx.serviceName}</td>
-                    <td class="px-6 py-4 font-bold">${formatRp(tx.servicePrice)}</td>
-                    <td class="px-6 py-4 font-bold text-purple-600">${formatRp(komisi)}</td>
+                    <td class="px-6 py-4 font-bold ${colorClass}">${formatRp(komisi)}</td>
                 </tr>`;
             }).join('');
 
-            if(overtimeTx.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="text-center py-6 text-gray-400">Tidak ada transaksi lembur pada periode ini.</td></tr>`;
+            if(allTx.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="text-center py-6 text-gray-400">Tidak ada transaksi pada periode ini.</td></tr>`;
             }
 
-            // Table: Debt Details to be Paid
+            // Debt List
             const debtList = document.getElementById('gaji-kasbon-list');
             if(currentGajiDebts.length === 0) {
                 debtList.innerHTML = "Tidak ada kasbon yang perlu dilunasi untuk periode ini.";
@@ -1175,7 +1307,6 @@
             }
         }
 
-        // NEW: PROCESS SALARY BUTTON
         document.getElementById('btn-proses-gaji').addEventListener('click', async () => {
             if(!confirm("TANDAI KASBON LUNAS?\n\nIni akan menandai semua daftar kasbon yang tampil sebagai 'Lunas'. Gaji bersih dianggap telah dibayar.")) return;
 
@@ -1193,7 +1324,7 @@
             try {
                 await batch.commit();
                 showToast(`Berhasil melunasi ${currentGajiDebts.length} item kasbon!`);
-                calculateSalary(); // Refresh UI
+                calculateSalary(); 
             } catch (err) {
                 showToast("Gagal memproses: " + err.message);
             }
