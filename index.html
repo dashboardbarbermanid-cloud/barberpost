@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Barberman.Id - Kasir Pintar</title>
+    <title>Barberman.Id - Kasir Pintar Pro</title>
     
     <link rel="icon" type="image/png" href="https://i.ibb.co.com/001yB4w/BARBER-20260604-120614-0000.png">
     <link rel="apple-touch-icon" href="https://i.ibb.co.com/001yB4w/BARBER-20260604-120614-0000.png">
@@ -96,7 +96,7 @@
                 </div>
                 <div>
                     <h1 class="font-bold text-lg tracking-wide">Barberman.Id</h1>
-                    <p class="text-xs text-gray-500">POS System v3</p>
+                    <p class="text-xs text-gray-500">POS System Pro v4.1</p>
                 </div>
             </div>
             <nav class="flex-1 space-y-1 overflow-y-auto" id="desktop-nav"></nav>
@@ -118,6 +118,9 @@
             <section id="view-kasir" class="view-section hidden">
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-3xl font-extrabold tracking-tight">Kasir</h2>
+                    <div class="bg-purple-100 text-purple-700 px-3 py-1 rounded-lg text-xs font-bold border border-purple-200">
+                        <i class="fa-solid fa-moon mr-1"></i> Lembur Otomatis > 22:15
+                    </div>
                 </div>
                 <div class="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-gray-100 fade-in">
                     <form id="form-kasir" class="space-y-6">
@@ -155,6 +158,7 @@
                                         <option value="">Tidak ada</option>
                                     </select>
                                 </div>
+                                
                                 <div>
                                     <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Metode Pembayaran</label>
                                     <div class="grid grid-cols-2 gap-3">
@@ -210,6 +214,185 @@
                 </div>
                 <h3 class="font-bold text-lg mb-4">Riwayat Pengeluaran</h3>
                 <div id="expense-list" class="space-y-3"></div>
+            </section>
+
+            <!-- VIEW: ABSENSI -->
+            <section id="view-absensi" class="view-section hidden">
+                <h2 class="text-3xl font-extrabold mb-6 tracking-tight uppercase">Absensi & Toko</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <div class="bg-white p-6 md:p-8 flex flex-col items-center justify-center text-center border-2 border-gray-100 shadow-sm">
+                        <div id="store-status-icon" class="w-24 h-24 rounded-full flex items-center justify-center mb-4 transition-all duration-300 shadow-inner bg-red-100 text-red-600"><i class="fa-solid fa-store-slash text-4xl"></i></div>
+                        <h3 class="text-2xl font-extrabold mb-1 uppercase tracking-wider" id="store-status-text">TOKO TUTUP</h3>
+                        <p class="text-gray-400 text-sm mb-6">Status Operasional</p>
+                        <div class="flex gap-3 w-full">
+                            <button id="btn-toko-buka" class="flex-1 py-4 rounded-2xl font-extrabold transition shadow-sm active:scale-95 bg-gray-200 text-gray-500 hover:bg-green-600 hover:text-white">Buka</button>
+                            <button id="btn-toko-tutup" class="flex-1 py-4 rounded-2xl font-extrabold transition shadow-sm active:scale-95 bg-red-600 text-white" disabled>Tutup</button>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 md:p-8 border-2 border-gray-100 shadow-sm">
+                        <h3 class="text-xl font-extrabold mb-6 flex items-center gap-2 uppercase tracking-wider"><i class="fa-solid fa-user-clock text-gray-400"></i> Absen Pegawai</h3>
+                        <form id="form-absensi" class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Pilih Pegawai</label>
+                                <select id="absen-nama" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 font-bold focus:ring-2 focus:ring-black" required>
+                                    <option value="" disabled selected>-- Pilih --</option>
+                                    <optgroup label="Capster" id="opt-group-capster"></optgroup>
+                                    <optgroup label="Staff" id="opt-group-staff"></optgroup>
+                                </select>
+                            </div>
+                            <div class="flex gap-3 pt-2">
+                                <button type="button" id="btn-absen-masuk" class="flex-1 py-4 rounded-2xl font-extrabold transition shadow-sm active:scale-95 bg-green-600 text-white hover:bg-green-700">Masuk</button>
+                                <button type="button" id="btn-absen-keluar" class="flex-1 py-4 rounded-2xl font-extrabold transition shadow-sm active:scale-95 bg-orange-600 text-white hover:bg-orange-700">Keluar</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div class="bg-white p-6 border-2 border-gray-100 shadow-sm">
+                    <h3 class="font-extrabold text-lg mb-6 uppercase tracking-wider">Log Hari Ini</h3>
+                    <div class="space-y-4" id="log-absensi"><p class="text-gray-400 text-center py-4 text-sm">Belum ada log hari ini.</p></div>
+                </div>
+            </section>
+
+            <!-- VIEW: KASBON -->
+            <section id="view-kasbon" class="view-section hidden">
+                <h2 class="text-3xl font-extrabold mb-6 tracking-tight">Kasbon Pegawai</h2>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                    <!-- Form Kasbon -->
+                    <div class="lg:col-span-1 bg-white p-6 rounded-3xl shadow-sm border border-gray-100 h-fit">
+                        <h3 class="font-bold text-lg mb-4 border-b border-gray-100 pb-2">Input Kasbon Baru</h3>
+                        <form id="form-kasbon" class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Pegawai</label>
+                                <select id="kasbon-user" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 font-bold focus:ring-2 focus:ring-black" required>
+                                    <option value="" disabled selected>-- Pilih --</option>
+                                    <optgroup label="Capster" id="kasbon-opt-capster"></optgroup>
+                                    <optgroup label="Staff" id="kasbon-opt-staff"></optgroup>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Nominal (Rp)</label>
+                                <input type="number" id="kasbon-amount" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 font-bold focus:ring-2 focus:ring-black" placeholder="0" required>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Keterangan</label>
+                                <input type="text" id="kasbon-desc" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 font-bold focus:ring-2 focus:ring-black" placeholder="Keperluan..." required>
+                            </div>
+                            <button type="submit" class="w-full bg-orange-600 text-white py-3 rounded-xl font-bold hover:bg-orange-700 transition shadow-sm active:scale-95">
+                                <i class="fa-solid fa-hand-holding-dollar mr-2"></i> Catat Utang
+                            </button>
+                        </form>
+                    </div>
+                    
+                    <!-- List Kasbon -->
+                    <div class="lg:col-span-2">
+                         <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+                            <div class="p-4 border-b border-gray-100 bg-gray-50 flex justify-between items-center">
+                                <h3 class="font-bold text-sm uppercase text-gray-600">Daftar Hutang Aktif</h3>
+                                <span class="text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded-md font-bold" id="total-kasbon-badge">Rp 0</span>
+                            </div>
+                            <div class="max-h-[600px] overflow-y-auto" id="kasbon-list">
+                                <p class="text-gray-400 text-center py-8 text-sm">Tidak ada kasbon aktif.</p>
+                            </div>
+                         </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW: GAJI CAPSTER -->
+            <section id="view-gaji" class="view-section hidden">
+                <h2 class="text-3xl font-extrabold mb-6 tracking-tight">Gaji & Komisi Lembur</h2>
+                <p class="text-gray-500 mb-6 text-sm">Sistem Komisi: <span class="font-bold text-purple-600">40% dari Layanan Lembur (Jam > 22:15)</span>. Kasbon dilunasi otomatis saat gaji diproses.</p>
+                
+                <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 mb-8">
+                    <div class="flex flex-col md:flex-row gap-4 items-end">
+                        <div class="flex-1 w-full">
+                            <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Pilih Capster</label>
+                            <select id="gaji-capster-select" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 font-bold focus:ring-2 focus:ring-black">
+                                <option value="" disabled selected>-- Pilih Capster --</option>
+                            </select>
+                        </div>
+                        <div class="w-full md:w-48">
+                            <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Bulan Periode</label>
+                            <select id="gaji-month-select" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 font-bold focus:ring-2 focus:ring-black">
+                                <option value="1">Januari</option><option value="2">Februari</option><option value="3">Maret</option>
+                                <option value="4">April</option><option value="5">Mei</option><option value="6">Juni</option>
+                                <option value="7">Juli</option><option value="8">Agustus</option><option value="9">September</option>
+                                <option value="10">Oktober</option><option value="11">November</option><option value="12">Desember</option>
+                            </select>
+                        </div>
+                        <div class="w-full md:w-32">
+                             <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Tahun</label>
+                             <input type="number" id="gaji-year-input" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 font-bold focus:ring-2 focus:ring-black" value="2024">
+                        </div>
+                    </div>
+                </div>
+
+                <div id="gaji-result-container" class="hidden fade-in">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                        <!-- Komisi Lembur -->
+                        <div class="bg-purple-50 p-6 rounded-3xl border border-purple-100 shadow-sm relative overflow-hidden">
+                            <div class="absolute -right-4 -top-4 text-purple-100 opacity-50"><i class="fa-solid fa-clock text-8xl"></i></div>
+                            <p class="text-purple-600 font-bold text-xs uppercase tracking-wider mb-1">Total Pendapatan Lembur</p>
+                            <h4 class="text-2xl font-extrabold text-purple-900" id="gaji-lembur-revenue">Rp 0</h4>
+                            <div class="mt-2 text-sm text-purple-600 bg-purple-100 inline-block px-2 py-1 rounded">Komisi 40%</div>
+                            <h3 class="text-3xl font-black text-purple-600 mt-2" id="gaji-komisi-total">Rp 0</h3>
+                        </div>
+
+                        <!-- Potongan Kasbon -->
+                        <div class="bg-red-50 p-6 rounded-3xl border border-red-100 shadow-sm relative overflow-hidden">
+                             <div class="absolute -right-4 -top-4 text-red-100 opacity-50"><i class="fa-solid fa-file-invoice-dollar text-8xl"></i></div>
+                             <p class="text-red-600 font-bold text-xs uppercase tracking-wider mb-1">Potongan Kasbon</p>
+                             <p class="text-xs text-red-400 mb-2">Total utang aktif hingga akhir periode</p>
+                             <h3 class="text-3xl font-black text-red-500" id="gaji-kasbon-total">- Rp 0</h3>
+                        </div>
+
+                        <!-- Gaji Bersih -->
+                        <div class="bg-black text-white p-6 rounded-3xl shadow-xl relative overflow-hidden">
+                             <div class="absolute -right-4 -top-4 text-white opacity-10"><i class="fa-solid fa-sack-dollar text-8xl"></i></div>
+                             <p class="text-gray-400 font-bold text-xs uppercase tracking-wider mb-1">Take Home Pay</p>
+                             <h3 class="text-4xl font-black text-green-400 mt-2" id="gaji-bersih">Rp 0</h3>
+                        </div>
+                    </div>
+
+                    <!-- PROCESS BUTTON -->
+                    <div class="bg-yellow-50 p-4 rounded-2xl border border-yellow-200 mb-8 flex flex-col md:flex-row items-center justify-between gap-4">
+                        <div>
+                            <h4 class="font-bold text-yellow-800">Siap Proses Gaji?</h4>
+                            <p class="text-xs text-yellow-700">Menekan tombol ini akan menghitung final pay dan menandai semua kasbon terkait sebagai LUNAS.</p>
+                        </div>
+                        <button id="btn-proses-gaji" class="bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-3 rounded-xl font-bold shadow-sm active:scale-95 whitespace-nowrap flex items-center gap-2">
+                            <i class="fa-solid fa-money-check-dollar"></i> Proses Gaji & Lunasi Kasbon
+                        </button>
+                    </div>
+
+                    <!-- KASBON DETAILS TO BE PAID -->
+                    <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden mb-8">
+                        <div class="p-4 border-b border-gray-100">
+                            <h3 class="font-bold text-lg text-red-600">Daftar Kasbon yang Akan Dilunasi</h3>
+                        </div>
+                        <div id="gaji-kasbon-list" class="p-4 text-sm text-gray-500">
+                            <!-- Filled by JS -->
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+                        <div class="p-6 border-b border-gray-100">
+                            <h3 class="font-bold text-lg">Rincian Transaksi Lembur (Lewat 22:15)</h3>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-sm whitespace-nowrap">
+                                <thead class="bg-gray-50 text-gray-500"><tr><th class="px-6 py-4 font-bold uppercase">Waktu</th><th class="px-6 py-4 font-bold uppercase">Pelanggan</th><th class="px-6 py-4 font-bold uppercase">Layanan</th><th class="px-6 py-4 font-bold uppercase">Harga</th><th class="px-6 py-4 font-bold uppercase">Komisi (40%)</th></tr></thead>
+                                <tbody id="gaji-table-body" class="divide-y divide-gray-50"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="gaji-empty-state" class="text-center py-12 bg-white rounded-3xl border border-dashed border-gray-300">
+                    <i class="fa-solid fa-calculator text-4xl text-gray-300 mb-4"></i>
+                    <p class="text-gray-500 font-bold">Pilih Capster dan Periode untuk melihat perhitungan gaji.</p>
+                </div>
+
             </section>
 
             <!-- VIEW: LAPORAN -->
@@ -282,7 +465,7 @@
                     </div>
                 </div>
 
-                <!-- TABLE: PENGELUARAN (NEW) -->
+                <!-- TABLE: PENGELUARAN -->
                 <h3 class="font-bold text-lg mb-4">Rincian Pengeluaran (Untuk Apa)</h3>
                 <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden mb-8">
                     <div class="overflow-x-auto">
@@ -322,36 +505,6 @@
                 </div>
             </section>
 
-            <!-- VIEW: ABSENSI -->
-            <section id="view-absensi" class="view-section hidden">
-                <h2 class="text-3xl font-extrabold mb-6 tracking-tight uppercase">Absensi & Toko</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                    <div class="bg-white p-6 md:p-8 flex flex-col items-center justify-center text-center border-2 border-gray-100 shadow-sm">
-                        <div id="store-status-icon" class="w-24 h-24 rounded-full flex items-center justify-center mb-4 transition-all duration-300 shadow-inner bg-red-100 text-red-600"><i class="fa-solid fa-store-slash text-4xl"></i></div>
-                        <h3 class="text-2xl font-extrabold mb-1 uppercase tracking-wider" id="store-status-text">TOKO TUTUP</h3>
-                        <p class="text-gray-400 text-sm mb-6">Status Operasional</p>
-                        <div class="flex gap-3 w-full">
-                            <button id="btn-toko-buka" class="flex-1 py-4 rounded-2xl font-extrabold transition shadow-sm active:scale-95 bg-gray-200 text-gray-500 hover:bg-green-600 hover:text-white">Buka</button>
-                            <button id="btn-toko-tutup" class="flex-1 py-4 rounded-2xl font-extrabold transition shadow-sm active:scale-95 bg-red-600 text-white" disabled>Tutup</button>
-                        </div>
-                    </div>
-                    <div class="bg-white p-6 md:p-8 border-2 border-gray-100 shadow-sm">
-                        <h3 class="text-xl font-extrabold mb-6 flex items-center gap-2 uppercase tracking-wider"><i class="fa-solid fa-user-clock text-gray-400"></i> Absen Crew</h3>
-                        <form id="form-absensi" class="space-y-4">
-                            <div><label class="block text-xs font-bold text-gray-500 uppercase mb-2">Nama Crew</label><select id="absen-nama" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 font-bold focus:ring-2 focus:ring-black" required><option value="" disabled selected>-- Pilih --</option></select></div>
-                            <div class="flex gap-3 pt-2">
-                                <button type="button" id="btn-absen-masuk" class="flex-1 py-4 rounded-2xl font-extrabold transition shadow-sm active:scale-95 bg-green-600 text-white hover:bg-green-700">Masuk</button>
-                                <button type="button" id="btn-absen-keluar" class="flex-1 py-4 rounded-2xl font-extrabold transition shadow-sm active:scale-95 bg-orange-600 text-white hover:bg-orange-700">Keluar</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-                <div class="bg-white p-6 border-2 border-gray-100 shadow-sm">
-                    <h3 class="font-extrabold text-lg mb-6 uppercase tracking-wider">Log Hari Ini</h3>
-                    <div class="space-y-4" id="log-absensi"><p class="text-gray-400 text-center py-4 text-sm">Belum ada log hari ini.</p></div>
-                </div>
-            </section>
-
             <!-- VIEW: PENGATURAN -->
             <section id="view-settings" class="view-section hidden">
                 <h2 class="text-3xl font-extrabold mb-6 tracking-tight">Pengaturan Data</h2>
@@ -369,6 +522,17 @@
                         </form>
                         <ul id="list-capsters" class="space-y-2 max-h-60 overflow-y-auto"></ul>
                     </div>
+                    
+                    <!-- NEW: Staff Management -->
+                    <div class="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
+                        <h3 class="font-bold text-lg mb-4 border-b border-gray-100 pb-2">Daftar Staff (Kru)</h3>
+                        <form id="form-add-staff" class="flex gap-2 mb-4">
+                            <input type="text" id="input-staff" placeholder="Nama Staff" class="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-2 focus:ring-2 focus:ring-black focus:bg-white text-sm font-semibold" required>
+                            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-xl font-bold hover:bg-blue-700"><i class="fa-solid fa-plus"></i></button>
+                        </form>
+                        <ul id="list-staff" class="space-y-2 max-h-60 overflow-y-auto"></ul>
+                    </div>
+
                     <div class="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
                         <h3 class="font-bold text-lg mb-4 border-b border-gray-100 pb-2">Daftar Layanan & Harga</h3>
                         <form id="form-add-service" class="space-y-2 mb-4">
@@ -450,7 +614,7 @@
                     </button>
                 </div>
                 <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden mb-6 fade-in">
-                    <div class="px-6 py-4 flex justify-between items-center border-b border-gray-50"><span class="font-semibold text-gray-600">Versi Aplikasi</span><span class="font-bold text-black">3.0.0</span></div>
+                    <div class="px-6 py-4 flex justify-between items-center border-b border-gray-50"><span class="font-semibold text-gray-600">Versi Aplikasi</span><span class="font-bold text-black">4.1.0 (Auto-Overtime)</span></div>
                     <div class="px-6 py-4 flex justify-between items-center"><span class="font-semibold text-gray-600">Developer</span><span class="font-bold text-black">Barberman.Id</span></div>
                 </div>
                 <button id="btn-logout-mobile-page" class="w-full py-4 bg-white border-2 border-red-200 text-red-600 rounded-2xl font-bold hover:bg-red-50 transition shadow-sm active:scale-95 flex items-center justify-center gap-2 mb-4">
@@ -560,10 +724,13 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        let currentUser = null, dbPrefix = "", capsters = [], services = [], products = [], transactions = [], expenses = [], logs = [];
+        let currentUser = null, dbPrefix = "", capsters = [], services = [], products = [], transactions = [], expenses = [], logs = [], staff = [], kasbons = [];
         let currentTxId = null, currentTempMethod = "", selectedPaymentFilter = 'all', searchPaymentQuery = '';
         let paymentConfig = { qrisImage: '', ewallets: [], banks: [] }, revenueChartInstance = null;
-        let selectedCalendarDateStr = null; 
+        let selectedCalendarDateStr = null;
+        
+        // For Gaji Processing
+        let currentGajiDebts = []; 
 
         const formatRp = (num) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num);
         const showToast = (msg) => { const t = document.getElementById("toast"); t.className = "show"; t.innerText = msg; setTimeout(() => { t.className = t.className.replace("show", ""); }, 3000); };
@@ -597,8 +764,16 @@
 
         const setupFirestoreListeners = () => {
             onSnapshot(collection(db, `${dbPrefix}/capsters`), (snap) => { capsters = snap.docs.map(d => ({id: d.id, ...d.data()})); renderCapsterDropdowns(); renderSettingsLists(); });
+            // Listener for Staff
+            onSnapshot(collection(db, `${dbPrefix}/staff`), (snap) => { staff = snap.docs.map(d => ({id: d.id, ...d.data()})); renderStaffDropdowns(); renderSettingsLists(); });
             onSnapshot(collection(db, `${dbPrefix}/services`), (snap) => { services = snap.docs.map(d => ({id: d.id, ...d.data()})); renderServiceDropdowns(); renderSettingsLists(); });
             onSnapshot(collection(db, `${dbPrefix}/products`), (snap) => { products = snap.docs.map(d => ({id: d.id, ...d.data()})); renderProductDropdowns(); renderSettingsLists(); });
+            // Listener for Kasbon
+            onSnapshot(collection(db, `${dbPrefix}/kasbons`), (snap) => { 
+                kasbons = snap.docs.map(d => ({id: d.id, ...d.data()})); 
+                kasbons.sort((a,b) => b.timestamp - a.timestamp); 
+                renderKasbonList(); 
+            });
             onSnapshot(collection(db, `${dbPrefix}/transactions`), (snap) => {
                 transactions = snap.docs.map(d => ({id: d.id, ...d.data()})); transactions.sort((a,b) => b.timestamp - a.timestamp);
                 renderPaymentList(); renderLaporan(); if(localStorage.getItem('last_active_tab') === 'kasir') updateAutoQueue();
@@ -614,12 +789,14 @@
             const yearSel = document.getElementById('report-year-select'); const currentYear = new Date().getFullYear(); yearSel.innerHTML = '';
             for(let y = currentYear; y >= 2022; y--) { yearSel.innerHTML += `<option value="${y}">${y}</option>`; }
             document.getElementById('report-month-select').value = new Date().getMonth() + 1;
+            document.getElementById('gaji-year-input').value = currentYear;
         };
 
         const tabs = [
             { id: 'kasir', icon: 'fa-calculator', label: 'Kasir' }, { id: 'pembayaran', icon: 'fa-money-bill-wave', label: 'Bayar' },
-            { id: 'pengeluaran', icon: 'fa-arrow-trend-down', label: 'Keluar' }, { id: 'laporan', icon: 'fa-chart-simple', label: 'Laporan' },
-            { id: 'absensi', icon: 'fa-user-clock', label: 'Absen' }, { id: 'settings', icon: 'fa-gear', label: 'Setting' }
+            { id: 'pengeluaran', icon: 'fa-arrow-trend-down', label: 'Keluar' }, { id: 'absensi', icon: 'fa-user-clock', label: 'Absen' },
+            { id: 'kasbon', icon: 'fa-hand-holding-dollar', label: 'Kasbon' }, { id: 'gaji', icon: 'fa-wallet', label: 'Gaji' },
+            { id: 'laporan', icon: 'fa-chart-simple', label: 'Laporan' }, { id: 'settings', icon: 'fa-gear', label: 'Setting' }
         ];
 
         const renderNav = () => {
@@ -642,28 +819,42 @@
             localStorage.setItem('last_active_tab', tabId); document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden')); const target = document.getElementById(`view-${tabId}`);
             if(target) { target.classList.remove('hidden'); target.classList.add('fade-in'); }
             if(tabId === 'kasir') updateAutoQueue();
+            if(tabId === 'gaji') { renderGajiDropdowns(); } // Refresh gaji dropdowns
             document.querySelectorAll('.nav-btn').forEach(btn => { btn.dataset.tab === tabId ? btn.className = "nav-btn w-full flex items-center gap-4 px-4 py-3 rounded-2xl transition-all duration-200 bg-white text-black font-bold shadow-md" : btn.className = "nav-btn w-full flex items-center gap-4 px-4 py-3 rounded-2xl transition-all duration-200 text-gray-400 hover:text-white hover:bg-gray-900 font-semibold"; });
             document.querySelectorAll('.nav-btn-mobile').forEach(btn => { btn.dataset.tab === tabId ? (btn.classList.remove('opacity-50'), btn.classList.add('opacity-100', 'scale-110')) : (btn.classList.add('opacity-50'), btn.classList.remove('opacity-100', 'scale-110')); });
         };
 
+        // --- SETTINGS LOGIC (STAFF) ---
         document.getElementById('form-add-capster').addEventListener('submit', async (e) => { e.preventDefault(); await addDoc(collection(db, `${dbPrefix}/capsters`), { name: document.getElementById('input-capster').value }); document.getElementById('input-capster').value = ''; });
+        document.getElementById('form-add-staff').addEventListener('submit', async (e) => { e.preventDefault(); await addDoc(collection(db, `${dbPrefix}/staff`), { name: document.getElementById('input-staff').value }); document.getElementById('input-staff').value = ''; });
         document.getElementById('form-add-service').addEventListener('submit', async (e) => { e.preventDefault(); await addDoc(collection(db, `${dbPrefix}/services`), { name: document.getElementById('input-service-name').value, price: parseInt(document.getElementById('input-service-price').value) }); document.getElementById('input-service-name').value = ''; document.getElementById('input-service-price').value = ''; });
         document.getElementById('form-add-product').addEventListener('submit', async (e) => { e.preventDefault(); await addDoc(collection(db, `${dbPrefix}/products`), { name: document.getElementById('input-product-name').value, price: parseInt(document.getElementById('input-product-price').value) }); document.getElementById('input-product-name').value = ''; document.getElementById('input-product-price').value = ''; });
         
         const renderSettingsLists = () => {
             document.getElementById('list-capsters').innerHTML = capsters.map(c => `<li class="flex justify-between items-center bg-gray-50 px-3 py-2 rounded-lg border border-gray-100"><span class="font-semibold text-sm truncate">${c.name}</span><button onclick="window.deleteItem('capster', '${c.id}')" class="text-red-500 hover:text-red-700 flex-shrink-0 ml-2"><i class="fa-solid fa-trash"></i></button></li>`).join('');
+            document.getElementById('list-staff').innerHTML = staff.map(s => `<li class="flex justify-between items-center bg-blue-50 px-3 py-2 rounded-lg border border-blue-100"><span class="font-semibold text-sm truncate">${s.name}</span><button onclick="window.deleteItem('staff', '${s.id}')" class="text-red-500 hover:text-red-700 flex-shrink-0 ml-2"><i class="fa-solid fa-trash"></i></button></li>`).join('');
             document.getElementById('list-services').innerHTML = services.map(s => `<li class="flex justify-between items-center bg-gray-50 px-3 py-2 rounded-lg border border-gray-100"><div class="min-w-0 mr-2"><span class="font-bold text-sm block truncate">${s.name}</span><span class="text-xs text-gray-500 truncate">${formatRp(s.price)}</span></div><button onclick="window.deleteItem('service', '${s.id}')" class="text-red-500 hover:text-red-700 flex-shrink-0"><i class="fa-solid fa-trash"></i></button></li>`).join('');
             document.getElementById('list-products').innerHTML = products.map(p => `<li class="flex justify-between items-center bg-gray-50 px-3 py-2 rounded-lg border border-gray-100"><div class="min-w-0 mr-2"><span class="font-bold text-sm block truncate">${p.name}</span><span class="text-xs text-gray-500 truncate">${formatRp(p.price)}</span></div><button onclick="window.deleteItem('product', '${p.id}')" class="text-red-500 hover:text-red-700 flex-shrink-0"><i class="fa-solid fa-trash"></i></button></li>`).join('');
         };
-        window.deleteItem = async (type, id) => { if(type === 'capster') await deleteDoc(doc(db, `${dbPrefix}/capsters`, id)); if(type === 'service') await deleteDoc(doc(db, `${dbPrefix}/services`, id)); if(type === 'product') await deleteDoc(doc(db, `${dbPrefix}/products`, id)); if(type === 'ewallet') await deletePaymentConfig('ewallets', id); if(type === 'bank') await deletePaymentConfig('banks', id); if(type === 'expense') await deleteDoc(doc(db, `${dbPrefix}/expenses`, id)); };
+        window.deleteItem = async (type, id) => {
+            if(type === 'capster') await deleteDoc(doc(db, `${dbPrefix}/capsters`, id)); 
+            if(type === 'staff') await deleteDoc(doc(db, `${dbPrefix}/staff`, id));
+            if(type === 'service') await deleteDoc(doc(db, `${dbPrefix}/services`, id)); 
+            if(type === 'product') await deleteDoc(doc(db, `${dbPrefix}/products`, id)); 
+            if(type === 'ewallet') await deletePaymentConfig('ewallets', id); 
+            if(type === 'bank') await deletePaymentConfig('banks', id); 
+            if(type === 'expense') await deleteDoc(doc(db, `${dbPrefix}/expenses`, id)); 
+            if(type === 'kasbon') await deleteDoc(doc(db, `${dbPrefix}/kasbons`, id));
+        };
 
         document.getElementById('btn-reset-monthly').addEventListener('click', async () => {
-            if(!confirm("PERINGATAN! Data Transaksi, Pengeluaran, dan Log dari BULAN LALU akan dihapus permanen. Lanjutkan?")) return;
+            if(!confirm("PERINGATAN! Data Transaksi, Pengeluaran, Log, dan Kasbon dari BULAN LALU akan dihapus permanen. Lanjutkan?")) return;
             const currentMonthStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1).getTime(); const batch = writeBatch(db); let count = 0;
             try {
                 const txSnap = await getDocs(collection(db, `${dbPrefix}/transactions`)); txSnap.forEach(d => { if(d.data().timestamp < currentMonthStart) { batch.delete(d.ref); count++; } });
                 const expSnap = await getDocs(collection(db, `${dbPrefix}/expenses`)); expSnap.forEach(d => { if(d.data().timestamp < currentMonthStart) { batch.delete(d.ref); count++; } });
                 const logSnap = await getDocs(collection(db, `${dbPrefix}/logs`)); logSnap.forEach(d => { if(d.data().timestamp < currentMonthStart) { batch.delete(d.ref); count++; } });
+                const kasbonSnap = await getDocs(collection(db, `${dbPrefix}/kasbons`)); kasbonSnap.forEach(d => { if(d.data().timestamp < currentMonthStart) { batch.delete(d.ref); count++; } });
                 if(count > 0) { await batch.commit(); showToast(`${count} data lama berhasil dihapus!`); } else { showToast("Tidak ada data bulan lalu."); }
             } catch(err) { showToast("Gagal menghapus: " + err.message); }
         });
@@ -679,7 +870,35 @@
         document.getElementById('form-add-bank').addEventListener('submit', async (e) => { e.preventDefault(); const newBank = { id: Math.random().toString(36).substr(2, 9), provider: document.getElementById('input-bank-provider').value, number: document.getElementById('input-bank-number').value, name: document.getElementById('input-bank-name').value }; const currentList = paymentConfig.banks || []; currentList.push(newBank); await setDoc(doc(db, `${dbPrefix}/store_settings/payment`), { banks: currentList }, { merge: true }); document.getElementById('form-add-bank').reset(); });
         const deletePaymentConfig = async (type, id) => { if(type === 'ewallets') { await setDoc(doc(db, `${dbPrefix}/store_settings/payment`), { ewallets: (paymentConfig.ewallets || []).filter(e => e.id !== id) }, { merge: true }); } else if(type === 'banks') { await setDoc(doc(db, `${dbPrefix}/store_settings/payment`), { banks: (paymentConfig.banks || []).filter(b => b.id !== id) }, { merge: true }); } };
 
-        const renderCapsterDropdowns = () => { const targets = ['kasir-capster', 'absen-nama']; targets.forEach(tid => { const el = document.getElementById(tid); if(!el) return; const current = el.value; el.innerHTML = `<option value="" disabled selected>-- Pilih Capster --</option>` + capsters.map(c => `<option value="${c.id}">${c.name}</option>`).join(''); if(current) el.value = current; }); };
+        // --- DROPDOWNS ---
+        const renderCapsterDropdowns = () => { 
+            const targets = ['kasir-capster', 'gaji-capster-select']; 
+            targets.forEach(tid => { 
+                const el = document.getElementById(tid); 
+                if(!el) return; 
+                const current = el.value;
+                el.innerHTML = `<option value="" disabled selected>-- Pilih Capster --</option>` + capsters.map(c => `<option value="${c.id}">${c.name}</option>`).join(''); 
+                if(current) el.value = current; 
+            }); 
+        };
+        
+        const renderStaffDropdowns = () => {
+            const absenSel = document.getElementById('absen-nama');
+            const kasbonSel = document.getElementById('kasbon-user');
+            
+            const buildGroupedOptions = () => {
+                let html = `<option value="" disabled selected>-- Pilih --</option>`;
+                html += `<optgroup label="Capster">` + capsters.map(c => `<option value="capster-${c.id}" data-name="${c.name}" data-type="capster">${c.name}</option>`).join('') + `</optgroup>`;
+                html += `<optgroup label="Staff">` + staff.map(s => `<option value="staff-${s.id}" data-name="${s.name}" data-type="staff">${s.name}</option>`).join('') + `</optgroup>`;
+                return html;
+            };
+
+            if(absenSel) absenSel.innerHTML = buildGroupedOptions();
+            if(kasbonSel) kasbonSel.innerHTML = buildGroupedOptions();
+
+            renderCapsterDropdowns(); // Ensure simple capster dropdowns are also updated
+        };
+
         const renderServiceDropdowns = () => { const el = document.getElementById('kasir-layanan'); const current = el.value; el.innerHTML = `<option value="" disabled selected>-- Pilih Layanan --</option>` + services.map(s => `<option value="${s.id}" data-price="${s.price}">${s.name}</option>`).join(''); if(current) el.value = current; };
         const renderProductDropdowns = () => { const el = document.getElementById('kasir-produk'); const current = el.value; el.innerHTML = `<option value="">Tidak ada</option>` + products.map(p => `<option value="${p.id}" data-price="${p.price}">${p.name}</option>`).join(''); if(current) el.value = current; };
 
@@ -693,11 +912,46 @@
             document.getElementById('kasir-antrian').value = 'A' + String(nextNum).padStart(2, '0');
         };
 
+        // OVERTIME LOGIC (UPDATED)
         document.getElementById('form-kasir').addEventListener('submit', async (e) => {
-            e.preventDefault(); const capster = capsters.find(c => c.id === document.getElementById('kasir-capster').value); const service = services.find(s => s.id === document.getElementById('kasir-layanan').value); const product = products.find(p => p.id === document.getElementById('kasir-produk').value);
-            const txData = { antrian: document.getElementById('kasir-antrian').value, nama: document.getElementById('kasir-nama').value, telepon: document.getElementById('kasir-telepon').value || '-', capsterName: capster.name, serviceName: service.name, servicePrice: service.price, productName: product ? product.name : null, productPrice: product ? product.price : 0, metode: document.getElementById('kasir-metode').value, total: updateTotal(), status: 'Belum Lunas', terima: 0, kembali: 0, timestamp: Date.now() };
+            e.preventDefault(); 
+            
+            // AUTO DETECT OVERTIME > 22:15
+            const now = new Date();
+            const hours = now.getHours();
+            const minutes = now.getMinutes();
+            const isOvertime = (hours > 22) || (hours === 22 && minutes >= 15);
+
+            const capster = capsters.find(c => c.id === document.getElementById('kasir-capster').value); 
+            const service = services.find(s => s.id === document.getElementById('kasir-layanan').value); 
+            const product = products.find(p => p.id === document.getElementById('kasir-produk').value);
+            
+            const txData = { 
+                antrian: document.getElementById('kasir-antrian').value, 
+                nama: document.getElementById('kasir-nama').value, 
+                telepon: document.getElementById('kasir-telepon').value || '-', 
+                capsterId: capster.id,
+                capsterName: capster.name, 
+                serviceName: service.name, 
+                servicePrice: service.price, 
+                productName: product ? product.name : null, 
+                productPrice: product ? product.price : 0, 
+                metode: document.getElementById('kasir-metode').value, 
+                total: updateTotal(), 
+                status: 'Belum Lunas', 
+                terima: 0, 
+                kembali: 0, 
+                timestamp: Date.now(),
+                isOvertime: isOvertime // AUTOMATED
+            };
             const btn = document.getElementById('btn-submit-kasir'); const orig = btn.innerHTML; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>'; btn.disabled = true;
-            try { await addDoc(collection(db, `${dbPrefix}/transactions`), txData); document.getElementById('form-kasir').reset(); updateTotal(); switchTab('pembayaran'); } catch(err) { showToast("Error: " + err.message); } finally { btn.innerHTML = orig; btn.disabled = false; updateAutoQueue(); }
+            try { 
+                await addDoc(collection(db, `${dbPrefix}/transactions`), txData); 
+                if(isOvertime) showToast("Lembur Terdeteksi (>22:15)!"); 
+                document.getElementById('form-kasir').reset(); 
+                updateTotal(); 
+                switchTab('pembayaran'); 
+            } catch(err) { showToast("Error: " + err.message); } finally { btn.innerHTML = orig; btn.disabled = false; updateAutoQueue(); }
         });
 
         document.getElementById('form-pengeluaran').addEventListener('submit', async (e) => { e.preventDefault(); await addDoc(collection(db, `${dbPrefix}/expenses`), { desc: document.getElementById('expense-desc').value, amount: parseInt(document.getElementById('expense-amount').value), timestamp: Date.now() }); document.getElementById('expense-desc').value = ''; document.getElementById('expense-amount').value = ''; });
@@ -706,6 +960,69 @@
             document.getElementById('expense-list').innerHTML = todayExp.length === 0 ? '<p class="text-gray-400 text-center py-4 text-sm bg-white rounded-2xl shadow-sm">Belum ada pengeluaran hari ini.</p>' : todayExp.map(e => { const dateStr = new Date(e.timestamp).toLocaleDateString('id-ID', { weekday: 'long', day: '2-digit', month: 'short' }); const timeStr = new Date(e.timestamp).toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'}); return `<div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center"><div><h4 class="font-bold text-sm">${e.desc}</h4><p class="text-xs text-gray-400">${dateStr}, ${timeStr}</p></div><div class="flex items-center gap-3"><span class="font-extrabold text-red-500">- ${formatRp(e.amount)}</span><button onclick="window.deleteItem('expense', '${e.id}')" class="text-gray-300 hover:text-red-500 transition p-1"><i class="fa-solid fa-trash text-xs"></i></button></div></div>`; }).join('');
         };
 
+        // --- KASBON LOGIC ---
+        document.getElementById('form-kasbon').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const val = document.getElementById('kasbon-user').value; 
+            const type = val.split('-')[0];
+            const userId = val.split('-')[1];
+            const userObj = type === 'capster' ? capsters.find(c => c.id === userId) : staff.find(s => s.id === userId);
+            
+            if(!userObj) return;
+
+            await addDoc(collection(db, `${dbPrefix}/kasbons`), {
+                userId: userId,
+                userName: userObj.name,
+                userType: type,
+                amount: parseInt(document.getElementById('kasbon-amount').value),
+                desc: document.getElementById('kasbon-desc').value,
+                status: 'Belum Lunas',
+                timestamp: Date.now()
+            });
+            document.getElementById('form-kasbon').reset();
+            showToast("Kasbon berhasil dicatat!");
+        });
+
+        const renderKasbonList = () => {
+            const list = document.getElementById('kasbon-list');
+            const activeKasbons = kasbons.filter(k => k.status === 'Belum Lunas');
+            const totalDebt = activeKasbons.reduce((sum, k) => sum + k.amount, 0);
+
+            document.getElementById('total-kasbon-badge').innerText = formatRp(totalDebt);
+
+            if(activeKasbons.length === 0) {
+                list.innerHTML = '<p class="text-gray-400 text-center py-8 text-sm">Tidak ada kasbon aktif.</p>';
+                return;
+            }
+
+            list.innerHTML = activeKasbons.map(k => {
+                const dateStr = new Date(k.timestamp).toLocaleDateString('id-ID', {day:'numeric', month:'short'});
+                const roleColor = k.userType === 'capster' ? 'text-purple-700 bg-purple-100' : 'text-blue-700 bg-blue-100';
+                return `
+                <div class="p-4 border-b border-gray-100 hover:bg-gray-50 flex justify-between items-center">
+                    <div>
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="text-xs font-bold px-2 py-0.5 rounded ${roleColor}">${k.userType.toUpperCase()}</span>
+                            <span class="font-bold text-sm text-gray-900">${k.userName}</span>
+                        </div>
+                        <p class="text-xs text-gray-500">${k.desc} • ${dateStr}</p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="font-extrabold text-red-500">${formatRp(k.amount)}</span>
+                        <button onclick="window.payKasbon('${k.id}')" class="text-xs bg-green-600 text-white px-3 py-1.5 rounded-lg hover:bg-green-700 font-bold">Bayar</button>
+                    </div>
+                </div>`;
+            }).join('');
+        };
+
+        window.payKasbon = async (id) => {
+            if(confirm("Tandai kasbon ini sebagai LUNAS sekarang?")) {
+                await updateDoc(doc(db, `${dbPrefix}/kasbons`, id), { status: 'Lunas', paidAt: Date.now() });
+                showToast("Kasbon Lunas!");
+            }
+        };
+
+        // --- ABSENSI LOGIC ---
         const sheetOverlay = document.getElementById('payment-sheet-overlay'), sheet = document.getElementById('payment-sheet');
         document.getElementById('search-payment').addEventListener('input', (e) => { searchPaymentQuery = e.target.value.toLowerCase(); renderPaymentList(); });
         document.querySelectorAll('.filter-btn').forEach(btn => { btn.addEventListener('click', (e) => { document.querySelectorAll('.filter-btn').forEach(b => { b.className = "filter-btn px-6 py-2.5 rounded-full bg-white text-gray-500 font-bold text-sm whitespace-nowrap shadow-sm border border-gray-200"; }); e.target.className = "filter-btn px-6 py-2.5 rounded-full bg-black text-white font-bold text-sm whitespace-nowrap shadow-lg"; selectedPaymentFilter = e.target.dataset.filter; renderPaymentList(); }); });
@@ -720,8 +1037,9 @@
                 const isLunas = tx.status === 'Lunas', isBatal = tx.status === 'Dibatalkan'; const div = document.createElement('div'); div.className = "bg-white p-5 rounded-3xl shadow-sm border border-gray-100 flex flex-col relative transition active:scale-95";
                 if (!isLunas && !isBatal) { div.classList.add('cursor-pointer', 'hover:shadow-md'); div.onclick = () => openPaymentSheet(tx); }
                 let statusBadge = isLunas ? `<span class="px-3 py-1 rounded-lg text-xs font-bold bg-green-100 text-green-700">Lunas</span>` : (isBatal ? `<span class="px-3 py-1 rounded-lg text-xs font-bold bg-gray-200 text-gray-500">Batal</span>` : `<span class="px-3 py-1 rounded-lg text-xs font-bold bg-red-100 text-red-600">Belum Lunas</span>`);
+                let lemburBadge = tx.isOvertime ? `<span class="ml-2 px-2 py-1 rounded-lg text-[10px] font-bold bg-purple-100 text-purple-600 border border-purple-200">LEMBUR (>22:15)</span>` : '';
                 let actionBtn = (!isLunas && !isBatal) ? `<button onclick="event.stopPropagation(); window.cancelOrder('${tx.id}')" class="text-gray-300 hover:text-red-500 transition p-2"><i class="fa-solid fa-ban"></i></button>` : '';
-                div.innerHTML = `<div class="flex justify-between items-start mb-3"><span class="px-3 py-1 bg-black text-white rounded-lg text-xs font-bold tracking-wide">${tx.antrian}</span><div class="flex items-center gap-2">${statusBadge}${actionBtn}</div></div><h4 class="font-bold text-lg text-black mb-1 truncate text-overflow-wrap">${tx.nama}</h4><p class="text-sm text-gray-500 mb-4">${tx.capsterName} • ${tx.serviceName}</p><div class="mt-auto pt-3 border-t border-gray-100 flex justify-between items-center"><span class="text-xs font-bold text-gray-400 uppercase">${tx.metode}</span><span class="font-extrabold text-black truncate text-overflow-wrap">${formatRp(tx.total)}</span></div>`;
+                div.innerHTML = `<div class="flex justify-between items-start mb-3"><span class="px-3 py-1 bg-black text-white rounded-lg text-xs font-bold tracking-wide">${tx.antrian}</span><div class="flex items-center gap-2">${statusBadge}${lemburBadge}${actionBtn}</div></div><h4 class="font-bold text-lg text-black mb-1 truncate text-overflow-wrap">${tx.nama}</h4><p class="text-sm text-gray-500 mb-4">${tx.capsterName} • ${tx.serviceName}</p><div class="mt-auto pt-3 border-t border-gray-100 flex justify-between items-center"><span class="text-xs font-bold text-gray-400 uppercase">${tx.metode}</span><span class="font-extrabold text-black truncate text-overflow-wrap">${formatRp(tx.total)}</span></div>`;
                 list.appendChild(div);
             });
         };
@@ -764,7 +1082,124 @@
             window.print();
         });
 
-        // LAPORAN LOGIC
+        // --- GAJI LOGIC (UPDATED FOR DATE 1) ---
+        const renderGajiDropdowns = () => {
+            const sel = document.getElementById('gaji-capster-select');
+            if(!sel) return;
+            const current = sel.value;
+            sel.innerHTML = `<option value="" disabled selected>-- Pilih Capster --</option>` + capsters.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+            if(current) sel.value = current;
+        };
+
+        document.getElementById('gaji-capster-select').addEventListener('change', calculateSalary);
+        document.getElementById('gaji-month-select').addEventListener('change', calculateSalary);
+        document.getElementById('gaji-year-input').addEventListener('change', calculateSalary);
+
+        function calculateSalary() {
+            const capsterId = document.getElementById('gaji-capster-select').value;
+            const month = parseInt(document.getElementById('gaji-month-select').value);
+            const year = parseInt(document.getElementById('gaji-year-input').value);
+
+            if(!capsterId || !month || !year) return;
+
+            // Period End (End of selected month)
+            const start = new Date(year, month - 1, 1).getTime();
+            const end = new Date(year, month, 0, 23, 59, 59).getTime();
+
+            // 1. Filter Transactions for this capster, this month, and isOvertime = true
+            const overtimeTx = transactions.filter(t => 
+                t.capsterId === capsterId && 
+                t.isOvertime && 
+                t.status === 'Lunas' && 
+                t.timestamp >= start && 
+                t.timestamp <= end
+            );
+
+            // 2. Calculate Revenue & Commission (40%)
+            const totalLemburRevenue = overtimeTx.reduce((sum, t) => sum + t.servicePrice, 0);
+            const komisiLembur = totalLemburRevenue * 0.4; 
+
+            // 3. Calculate Debt (Kasbon) for this capster that is STILL UNPAID and happened BEFORE or DURING the end of this month
+            // "Total setiap tanggal 1" -> We collect all debts up to the end of the month being viewed.
+            currentGajiDebts = kasbons.filter(k => 
+                k.userId === capsterId && 
+                k.userType === 'capster' && 
+                k.status === 'Belum Lunas' &&
+                k.timestamp <= end
+            );
+
+            const totalKasbon = currentGajiDebts.reduce((sum, k) => sum + k.amount, 0);
+
+            // 4. Calculate Take Home Pay
+            const gajiBersih = komisiLembur - totalKasbon;
+
+            // 5. Update UI
+            document.getElementById('gaji-result-container').classList.remove('hidden');
+            document.getElementById('gaji-empty-state').classList.add('hidden');
+
+            document.getElementById('gaji-lembur-revenue').innerText = formatRp(totalLemburRevenue);
+            document.getElementById('gaji-komisi-total').innerText = formatRp(komisiLembur);
+            document.getElementById('gaji-kasbon-total').innerText = `- ${formatRp(totalKasbon)}`;
+            document.getElementById('gaji-bersih').innerText = formatRp(gajiBersih);
+
+            // Table: Overtime Details
+            const tbody = document.getElementById('gaji-table-body');
+            tbody.innerHTML = overtimeTx.map(tx => {
+                const komisi = tx.servicePrice * 0.4;
+                const time = new Date(tx.timestamp);
+                const timeStr = time.getHours() + ':' + String(time.getMinutes()).padStart(2,'0');
+                return `<tr class="hover:bg-gray-50 border-b border-gray-50">
+                    <td class="px-6 py-4 text-gray-500 text-xs">${new Date(tx.timestamp).toLocaleDateString('id-ID')} <span class="text-purple-600">(${timeStr})</span></td>
+                    <td class="px-6 py-4 font-bold">${tx.nama}</td>
+                    <td class="px-6 py-4 truncate">${tx.serviceName}</td>
+                    <td class="px-6 py-4 font-bold">${formatRp(tx.servicePrice)}</td>
+                    <td class="px-6 py-4 font-bold text-purple-600">${formatRp(komisi)}</td>
+                </tr>`;
+            }).join('');
+
+            if(overtimeTx.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="text-center py-6 text-gray-400">Tidak ada transaksi lembur pada periode ini.</td></tr>`;
+            }
+
+            // Table: Debt Details to be Paid
+            const debtList = document.getElementById('gaji-kasbon-list');
+            if(currentGajiDebts.length === 0) {
+                debtList.innerHTML = "Tidak ada kasbon yang perlu dilunasi untuk periode ini.";
+            } else {
+                debtList.innerHTML = `<ul class="space-y-2">` + currentGajiDebts.map(d => `
+                    <li class="flex justify-between items-center border-b border-gray-100 pb-1">
+                        <span>${d.desc} (${new Date(d.timestamp).toLocaleDateString('id-ID')})</span>
+                        <span class="font-bold text-red-500">${formatRp(d.amount)}</span>
+                    </li>
+                `).join('') + `</ul>`;
+            }
+        }
+
+        // NEW: PROCESS SALARY BUTTON
+        document.getElementById('btn-proses-gaji').addEventListener('click', async () => {
+            if(!confirm("TANDAI KASBON LUNAS?\n\nIni akan menandai semua daftar kasbon yang tampil sebagai 'Lunas'. Gaji bersih dianggap telah dibayar.")) return;
+
+            if(currentGajiDebts.length === 0) {
+                showToast("Tidak ada kasbon untuk dilunasi.");
+                return;
+            }
+
+            const batch = writeBatch(db);
+            currentGajiDebts.forEach(debt => {
+                const ref = doc(db, `${dbPrefix}/kasbons`, debt.id);
+                batch.update(ref, { status: 'Lunas', paidAt: Date.now() });
+            });
+
+            try {
+                await batch.commit();
+                showToast(`Berhasil melunasi ${currentGajiDebts.length} item kasbon!`);
+                calculateSalary(); // Refresh UI
+            } catch (err) {
+                showToast("Gagal memproses: " + err.message);
+            }
+        });
+
+        // --- LAPORAN LOGIC ---
         window.showTopCapsterDetail = (capsterName) => {
             const { start, end } = getReportRange(); const capsterTx = transactions.filter(t => t.status === 'Lunas' && t.capsterName === capsterName && t.timestamp >= start.getTime() && t.timestamp <= end.getTime());
             document.getElementById('detail-capster-avatar').innerText = capsterName.charAt(0).toUpperCase(); document.getElementById('detail-capster-name').innerText = capsterName; document.getElementById('detail-count').innerText = capsterTx.length; document.getElementById('detail-revenue').innerText = formatRp(capsterTx.reduce((sum, t) => sum + t.total, 0));
@@ -816,7 +1251,6 @@
             let topCapName = "-", topCapScore = 0; for(let c in capsterStats) { if(capsterStats[c].count > topCapScore) { topCapScore = capsterStats[c].count; topCapName = c; } } document.getElementById('lap-top-capster').innerText = topCapName; document.getElementById('card-top-capster').onclick = () => { if(topCapName !== '-') showTopCapsterDetail(topCapName); };
             const capsterGrid = document.getElementById('capster-performance-grid'); capsterGrid.innerHTML = Object.keys(capsterStats).sort((a, b) => capsterStats[b].revenue - capsterStats[a].revenue).map(name => `<div class="bg-white p-5 rounded-3xl shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-gray-50 transition-colors" onclick="window.showTopCapsterDetail('${name}')"><div class="w-12 h-12 rounded-full bg-black text-white flex items-center justify-center font-bold text-lg mb-2">${name.charAt(0)}</div><h4 class="font-extrabold text-black">${name}</h4><p class="text-xs text-gray-400 mt-1">${capsterStats[name].count} Customer</p><p class="font-bold text-green-600 mt-1 text-sm">${formatRp(capsterStats[name].revenue)}</p></div>`).join('') || '<div class="col-span-full text-center text-sm text-gray-400 py-4 bg-white rounded-3xl shadow-sm border border-gray-100">Belum ada data capster.</div>';
             
-            // RENDER EXPENSE DETAIL TABLE (NEW)
             const expTbody = document.getElementById('expense-table-body'); expTbody.innerHTML = '';
             if(filteredExp.length === 0) { expTbody.innerHTML = `<tr><td colspan="3" class="text-center py-6 text-gray-400">Tidak ada pengeluaran pada periode ini.</td></tr>`; }
             else { filteredExp.forEach(exp => { const dateStr = new Date(exp.timestamp).toLocaleDateString('id-ID', { weekday: 'short', day: '2-digit', month: 'short', year: '2-digit' }); expTbody.innerHTML += `<tr class="hover:bg-red-50 border-b border-gray-50"><td class="px-6 py-4 text-gray-500 text-xs">${dateStr}</td><td class="px-6 py-4 font-bold text-red-600">${exp.desc}</td><td class="px-6 py-4 font-bold text-red-500">${formatRp(exp.amount)}</td></tr>`; }); }
@@ -824,10 +1258,9 @@
 
         document.getElementById('btn-download-laporan').addEventListener('click', () => {
             const { start, end, subtitle } = getReportRange(); 
-            let csv = `Laporan ${subtitle}\n\nRIWAYAT TRANSAKSI\nTanggal,Antrian,Nama,Capster,Layanan,Total,Metode\n`; let sumCash = 0, sumQris = 0, sumBank = 0, grandTotal = 0, totalExpense = 0, totalCustomer = 0;
-            transactions.filter(t => t.status === 'Lunas' && t.timestamp >= start.getTime() && t.timestamp <= end.getTime()).forEach(t => { csv += `${new Date(t.timestamp).toLocaleDateString('id-ID')},${t.antrian},${t.nama},${t.capsterName},${t.serviceName},${t.total},${t.metode}\n`; grandTotal += t.total; totalCustomer++; if(t.metode === 'Cash') sumCash += t.total; else if(t.metode === 'QRIS') sumQris += t.total; else sumBank += t.total; });
+            let csv = `Laporan ${subtitle}\n\nRIWAYAT TRANSAKSI\nTanggal,Antrian,Nama,Capster,Layanan,Total,Metode,Lembur\n`; let sumCash = 0, sumQris = 0, sumBank = 0, grandTotal = 0, totalExpense = 0, totalCustomer = 0;
+            transactions.filter(t => t.status === 'Lunas' && t.timestamp >= start.getTime() && t.timestamp <= end.getTime()).forEach(t => { csv += `${new Date(t.timestamp).toLocaleDateString('id-ID')},${t.antrian},${t.nama},${t.capsterName},${t.serviceName},${t.total},${t.metode},${t.isOvertime ? 'Ya' : 'Tidak'}\n`; grandTotal += t.total; totalCustomer++; if(t.metode === 'Cash') sumCash += t.total; else if(t.metode === 'QRIS') sumQris += t.total; else sumBank += t.total; });
             
-            // NEW: Add Expense Details to CSV
             let csvExp = "\nRINCIAN PENGELUARAN\nTanggal,Keterangan (Untuk Apa),Nominal\n";
             expenses.filter(e => e.timestamp >= start.getTime() && e.timestamp <= end.getTime()).forEach(e => { csvExp += `${new Date(e.timestamp).toLocaleDateString('id-ID')},${e.desc},${e.amount}\n`; totalExpense += e.amount; });
             csv += csvExp;
@@ -849,8 +1282,20 @@
         const addLog = async (type, msg) => { await addDoc(collection(db, `${dbPrefix}/logs`), { type, msg, timestamp: Date.now() }); };
         document.getElementById('btn-toko-buka').addEventListener('click', async () => { localStorage.setItem('store_open', 'true'); updateStoreUI(true); await addLog('OPEN', 'Toko Dibuka'); });
         document.getElementById('btn-toko-tutup').addEventListener('click', async () => { localStorage.setItem('store_open', 'false'); updateStoreUI(false); await addLog('CLOSE', 'Toko Ditutup'); });
-        document.getElementById('btn-absen-masuk').addEventListener('click', async () => { const id = document.getElementById('absen-nama').value; const c = capsters.find(x => x.id === id); if(!c) { showToast("Pilih Crew"); return; } await addLog('IN', `${c.name} Absen Masuk`); showToast(`${c.name} masuk`); });
-        document.getElementById('btn-absen-keluar').addEventListener('click', async () => { const id = document.getElementById('absen-nama').value; const c = capsters.find(x => x.id === id); if(!c) { showToast("Pilih Crew"); return; } await addLog('OUT', `${c.name} Absen Keluar`); showToast(`${c.name} keluar`); });
+        document.getElementById('btn-absen-masuk').addEventListener('click', async () => { 
+            const val = document.getElementById('absen-nama').value; if(!val) return;
+            const type = val.split('-')[0]; const id = val.split('-')[1];
+            const c = type === 'capster' ? capsters.find(x => x.id === id) : staff.find(x => x.id === id);
+            if(!c) { showToast("Pilih Pegawai"); return; } 
+            await addLog('IN', `${c.name} (${type}) Absen Masuk`); showToast(`${c.name} masuk`); 
+        });
+        document.getElementById('btn-absen-keluar').addEventListener('click', async () => { 
+            const val = document.getElementById('absen-nama').value; if(!val) return;
+            const type = val.split('-')[0]; const id = val.split('-')[1];
+            const c = type === 'capster' ? capsters.find(x => x.id === id) : staff.find(x => x.id === id);
+            if(!c) { showToast("Pilih Pegawai"); return; } 
+            await addLog('OUT', `${c.name} (${type}) Absen Keluar`); showToast(`${c.name} keluar`); 
+        });
 
     </script>
 </body>
