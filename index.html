@@ -763,6 +763,8 @@
         </table>
         <div style="text-align: center; margin-top: 30px;"><p style="font-size: 16px; font-weight: bold;">*** LUNAS ***</p></div>
     </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/esc-pos-encoder/dist/esc-pos-encoder.umd.js"></script>
 
     <!-- LOGIC -->
     <script type="module">
@@ -1173,13 +1175,129 @@
             await updateDoc(doc(db, `${dbPrefix}/transactions`, currentTxId), { status: 'Lunas', metode: currentTempMethod, terima, kembali, telepon: phoneUpdate }); showToast("Pembayaran Lunas!"); closePaymentSheet();
         });
 
-        document.getElementById('btn-ps-cetak').addEventListener('click', () => {
-            if(!currentTxId) return; const tx = transactions.find(t => t.id === currentTxId);
-            document.getElementById('print-date').innerText = new Date(tx.timestamp).toLocaleString('id-ID'); document.getElementById('print-antrian').innerText = tx.antrian; document.getElementById('print-customer').innerText = tx.nama; document.getElementById('print-phone').innerText = document.getElementById('ps-phone').value.trim() || '-'; document.getElementById('print-capster').innerText = tx.capsterName;
-            document.getElementById('print-layanan-price').innerText = `${tx.serviceName} (${formatRp(tx.servicePrice)})`; document.getElementById('print-produk-price').innerText = tx.productName ? `${tx.productName} (${formatRp(tx.productPrice)})` : '-'; document.getElementById('print-total').innerText = formatRp(tx.total); document.getElementById('print-metode').innerText = tx.metode;
-            if(tx.metode === 'Cash') { document.getElementById('print-row-bayar').style.display = 'table-row'; document.getElementById('print-row-kembali').style.display = 'table-row'; document.getElementById('print-bayar').innerText = formatRp(tx.terima); document.getElementById('print-kembali').innerText = formatRp(tx.kembali); } else { document.getElementById('print-row-bayar').style.display = 'none'; document.getElementById('print-row-kembali').style.display = 'none'; }
-            window.print();
+       document.getElementById('btn-ps-cetak').addEventListener('click', async () => {
+    if (!currentTxId) return;
+    
+    const tx = transactions.find(t => t.id === currentTxId);
+    
+    const quotes = [
+        "Penampilan rapi adalah standar, bukan pilihan",
+        "Rambut bagus dimulai dari keputusan yang tepat",
+        "Perawatan rutin menjaga hasil tetap konsisten",
+        "Style terbaik adalah yang dirawat dengan disiplin"
+    ];
+    
+    const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+    
+    try {
+        // =========================
+        // BLUETOOTH CONNECT (FIXED)
+        // =========================
+        const device = await navigator.bluetooth.requestDevice({
+            acceptAllDevices: true,
+            optionalServices: [
+                '0000ffe0-0000-1000-8000-00805f9b34fb',
+                '000018f0-0000-1000-8000-00805f9b34fb'
+            ]
         });
+        
+        const server = await device.gatt.connect();
+        const service = await server.getPrimaryService(
+            '0000ffe0-0000-1000-8000-00805f9b34fb'
+        ).catch(async () => {
+            return await server.getPrimaryService(
+                '000018f0-0000-1000-8000-00805f9b34fb'
+            );
+        });
+        
+        const characteristics = await service.getCharacteristics();
+        const characteristic = characteristics[0];
+        
+        // =========================
+        // ESC/POS INVOICE DESIGN
+        // =========================
+        const encoder = new EscPosEncoder();
+        
+        const result = encoder
+            .initialize()
+            
+            // ===== HEADER =====
+            .align('center')
+            .bold(true)
+            .text('METHOD BARBERSHOP\n')
+            .bold(false)
+            .text('Precision Cuts & Styling\n')
+            .text('--------------------------------\n')
+            
+            // ===== INFO =====
+            .align('left')
+            .text(`Tanggal : ${new Date(tx.timestamp).toLocaleString('id-ID')}\n`)
+            .text(`Antrian : ${tx.antrian}\n`)
+            .text('--------------------------------\n')
+            
+            .text(`Customer : ${tx.nama}\n`)
+            .text(`Capster  : ${tx.capsterName}\n`)
+            .text('--------------------------------\n')
+            
+            // ===== SERVICE =====
+            .text('SERVICE\n')
+            .text(`${tx.serviceName}\n   ${formatRp(tx.servicePrice)}\n`)
+            
+            .text(
+                tx.productName ?
+                `${tx.productName}\n   ${formatRp(tx.productPrice)}\n` :
+                ''
+            )
+            
+            .text('--------------------------------\n')
+            
+            // ===== TOTAL =====
+            .bold(true)
+            .text(`TOTAL : ${formatRp(tx.total)}\n`)
+            .bold(false)
+            
+            .text(`Metode Pembayaran : ${tx.metode}\n`)
+            .text('--------------------------------\n')
+            
+            // ===== METHOD PROMO (REPLACED NOTE) =====
+            .text('METHOD STYLING RECOMMENDATION\n')
+            .text('- Clay: texture natural, matte finish, effortless look\n')
+            .text('- Water Based Pomade: clean, sleek, strong hold\n')
+            .text('- Powder: volume instant, ringan, natural flow\n')
+            .text('- Gunakan sesuai karakter rambut Anda\n')
+            .text('--------------------------------\n')
+            
+            // ===== QUOTE =====
+            .align('center')
+            .text(`"${randomQuote}"\n`)
+            .text('--------------------------------\n')
+            
+            // ===== FOOTER =====
+            .text('METHOD BARBERSHOP\n')
+            .text('Thank you for your visit\n')
+            .text('--------------------------------\n')
+            
+            .cut()
+            .encode();
+        
+        // =========================
+        // BLE CHUNK SEND (IMPORTANT FIX)
+        // =========================
+        const sendChunk = async (characteristic, data) => {
+            const chunkSize = 180;
+            for (let i = 0; i < data.length; i += chunkSize) {
+                const chunk = data.slice(i, i + chunkSize);
+                await characteristic.writeValue(chunk);
+            }
+        };
+        
+        await sendChunk(characteristic, result);
+        
+    } catch (err) {
+        console.log('Print error:', err);
+        alert('Gagal connect printer Bluetooth');
+    }
+});
 
         // --- GAJI LOGIC (UPDATED FOR 2 TYPES) ---
         const renderGajiDropdowns = () => {
